@@ -31,6 +31,7 @@ final class AuthView: UIViewController {
         static let signupButtonTitle: String = String(localized: "Sign up")
         static let forgotPasswordButtonTitle: String = String(localized: "Forgot your password?")
         static let nextButtonTitle: String = String(localized: "Next")
+        static let backgroundColor: String = "backgroundColor"
     }
 
     // MARK: - UI Elements
@@ -104,7 +105,7 @@ final class AuthView: UIViewController {
 
     // MARK: - Configuration
     private func configureUI() {
-        view.backgroundColor = .white
+        view.backgroundColor = UIColor(named: Constants.backgroundColor)
         configureLogo()
         configureStackView()
     }

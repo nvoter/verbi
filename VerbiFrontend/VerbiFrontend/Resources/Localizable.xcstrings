@@ -12,6 +12,16 @@
         }
       }
     },
+    "Files not found" : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Файлы не найдены"
+          }
+        }
+      }
+    },
     "Forgot your password?" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -19,6 +29,16 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Забыли пароль?"
+          }
+        }
+      }
+    },
+    "Library" : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Библиотека"
           }
         }
       }
@@ -56,6 +76,16 @@
         }
       }
     },
+    "Search" : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Поиск"
+          }
+        }
+      }
+    },
     "Sign up" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -63,6 +93,16 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Зарегистрироваться"
+          }
+        }
+      }
+    },
+    "Upload" : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Загрузить"
           }
         }
       }
