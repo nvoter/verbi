@@ -27,6 +27,8 @@ final class VerbiTextField: UITextField {
         static let buttonWidth: CGFloat = 40
         static let secureImage: String = "eye"
         static let nonSecureImage: String = "eye.slash"
+        static let editableBorderWidth: CGFloat = 1.5
+        static let uneditableBorderWidth: CGFloat = 0
     }
 
     // MARK: - LifeCycle
@@ -131,5 +133,10 @@ final class VerbiTextField: UITextField {
     @objc private func toggleSecurity(_ sender: UIButton) {
         sender.isSelected.toggle()
         self.isSecureTextEntry.toggle()
+    }
+
+    func changeBorderStyle(_ isEditingMode: Bool) {
+        self.layer.borderColor = isEditingMode ? UIColor.accent.cgColor : UIColor.clear.cgColor
+        self.layer.borderWidth = isEditingMode ? Constants.editableBorderWidth : Constants.uneditableBorderWidth
     }
 }

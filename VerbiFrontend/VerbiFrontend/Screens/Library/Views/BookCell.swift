@@ -15,6 +15,8 @@ class BookCell: UICollectionViewCell {
         static let numberOfLines: Int = 2
         static let imageHeightMultiplier: CGFloat = 0.8
         static let titlePadding: CGFloat = 4
+        static let reuseIdentifier: String = "BookCell"
+        static let fatalErrorMessage: String = "init(coder:) has not been implemented"
     }
 
     // MARK: - UI Elements
@@ -35,7 +37,7 @@ class BookCell: UICollectionViewCell {
     }()
 
     // MARK: - Properties
-    static let reuseIdentifier: String = "BookCell"
+    static let reuseIdentifier: String = Constants.reuseIdentifier
 
     // MARK: - LifeCycle
     override init(frame: CGRect) {
@@ -73,7 +75,7 @@ class BookCell: UICollectionViewCell {
     }
 
     required init?(coder: NSCoder) {
-        fatalError("init(coder:) has not been implemented")
+        fatalError(Constants.fatalErrorMessage)
     }
 
     // MARK: - Configuration
