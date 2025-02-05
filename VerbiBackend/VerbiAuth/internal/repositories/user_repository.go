@@ -15,7 +15,7 @@ func NewUserRepository(db *gorm.DB) *UserRepository {
 	return &UserRepository{DB: db}
 }
 
-// CreateUser inserts a new user to the database
+// CreateUser inserts a new user into the database
 func (r *UserRepository) CreateUser(user *models.User) error {
 	return r.DB.Create(user).Error
 }

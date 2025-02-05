@@ -1,4 +1,4 @@
-package test
+package repositories_test
 
 import (
 	"testing"
@@ -39,7 +39,7 @@ func TestCreateUser(t *testing.T) {
 	}
 	err = repo.CreateUser(user)
 	assert.NoError(t, err)
-	assert.NotZero(t, user.ID, "ID должен быть установлен после создания")
+	assert.NotZero(t, user.ID, "Id must be set after creation")
 
 	var foundUser models.User
 	err = db.First(&foundUser, user.ID).Error
