@@ -11,7 +11,7 @@ import (
 )
 
 // setupTestDB creates and sets up a temporary database in memory
-func setupTestDB() (*gorm.DB, error) {
+func SetupTestDB() (*gorm.DB, error) {
 	db, err := gorm.Open(sqlite.Open(":memory:"), &gorm.Config{})
 	if err != nil {
 		return nil, err
@@ -27,7 +27,7 @@ func setupTestDB() (*gorm.DB, error) {
 
 // TestCreateUser tests user creation
 func TestCreateUser(t *testing.T) {
-	db, err := setupTestDB()
+	db, err := SetupTestDB()
 	assert.NoError(t, err)
 
 	repo := repositories.NewUserRepository(db)
@@ -49,7 +49,7 @@ func TestCreateUser(t *testing.T) {
 
 // TestUpdateUser tests user update
 func TestUpdateUser(t *testing.T) {
-	db, err := setupTestDB()
+	db, err := SetupTestDB()
 	assert.NoError(t, err)
 
 	repo := repositories.NewUserRepository(db)
@@ -74,7 +74,7 @@ func TestUpdateUser(t *testing.T) {
 
 // TestDeleteUser tests user deletion
 func TestDeleteUser(t *testing.T) {
-	db, err := setupTestDB()
+	db, err := SetupTestDB()
 	assert.NoError(t, err)
 
 	repo := repositories.NewUserRepository(db)
@@ -96,7 +96,7 @@ func TestDeleteUser(t *testing.T) {
 
 // TestGetUserByEmail tests user search by email
 func TestGetUserByEmail(t *testing.T) {
-	db, err := setupTestDB()
+	db, err := SetupTestDB()
 	assert.NoError(t, err)
 
 	repo := repositories.NewUserRepository(db)
@@ -120,7 +120,7 @@ func TestGetUserByEmail(t *testing.T) {
 
 // TestGetUserByUsername tests user search by email username
 func TestGetUserByUsername(t *testing.T) {
-	db, err := setupTestDB()
+	db, err := SetupTestDB()
 	assert.NoError(t, err)
 
 	repo := repositories.NewUserRepository(db)
