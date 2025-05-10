@@ -1,6 +1,8 @@
 package utils
 
 import (
+	"crypto/rand"
+	"encoding/base64"
 	"github.com/dgrijalva/jwt-go"
 	"os"
 	"time"
@@ -19,4 +21,15 @@ func GenerateAccessToken(userID uint) (string, error) {
 	}
 
 	return tokenString, nil
+}
+
+// GenerateRefreshToken generates and returns refresh token
+func GenerateRefreshToken() (string, error) {
+	tokenBytes := make([]byte, 32)
+	_, err := rand.Read(tokenBytes)
+	if err != nil {
+		return "", err
+	}
+
+	return base64.URLEncoding.EncodeToString(tokenBytes), nil
 }

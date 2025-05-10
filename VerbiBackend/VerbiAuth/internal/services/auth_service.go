@@ -5,25 +5,29 @@ import (
 	"VerbiAuth/internal/repositories"
 	"VerbiAuth/internal/utils"
 	"errors"
+	"time"
 )
 
 // AuthService to handle authentication actions
 type AuthService struct {
-	UserRepository *repositories.UserRepository
-	CodeRepository *repositories.UserCodeRepository
-	MailService    *MailService
+	UserRepository         *repositories.UserRepository
+	RefreshTokenRepository *repositories.RefreshTokenRepository
+	CodeRepository         *repositories.UserCodeRepository
+	MailService            *MailService
 }
 
 // NewAuthService creates a new authentication service
 func NewAuthService(
 	userRepository *repositories.UserRepository,
+	refreshTokenRepository *repositories.RefreshTokenRepository,
 	codeRepository *repositories.UserCodeRepository,
 	mailService *MailService,
 ) *AuthService {
 	return &AuthService{
-		UserRepository: userRepository,
-		CodeRepository: codeRepository,
-		MailService:    mailService,
+		UserRepository:         userRepository,
+		RefreshTokenRepository: refreshTokenRepository,
+		CodeRepository:         codeRepository,
+		MailService:            mailService,
 	}
 }
 
@@ -156,25 +160,41 @@ func (s *AuthService) ResendCode(email, codeType string) error {
 }
 
 // Login processes a login request
-func (s *AuthService) Login(emailOrUsername, password string) (string, error) {
+func (s *AuthService) Login(emailOrUsername, password string) (string, string, error) {
 	user, err := s.UserRepository.GetUserByEmail(emailOrUsername)
 	if err != nil {
 		user, err = s.UserRepository.GetUserByUsername(emailOrUsername)
 	}
 	if err != nil {
-		return "", errors.New("user doesn't exist")
+		return "", "", errors.New("user doesn't exist")
 	}
 
 	if !utils.CheckPasswordHash(password, user.Password) {
-		return "", errors.New("invalid password")
+		return "", "", errors.New("invalid password")
 	}
 
-	token, err := utils.GenerateAccessToken(user.ID)
+	accessToken, err := utils.GenerateAccessToken(user.ID)
 	if err != nil {
-		return "", errors.New("could not generate token")
+		return "", "", errors.New("could not generate access token")
 	}
 
-	return token, nil
+	refreshTokenString, err := utils.GenerateRefreshToken()
+	if err != nil {
+		return "", "", errors.New("could not generate refresh token")
+	}
+
+	refreshToken := &models.RefreshToken{
+		UserID:    user.ID,
+		Token:     refreshTokenString,
+		ExpiresAt: time.Now().Add(time.Hour * 7 * 24),
+	}
+
+	err = s.RefreshTokenRepository.CreateToken(refreshToken)
+	if err != nil {
+		return "", "", errors.New("could not save refresh token")
+	}
+
+	return accessToken, refreshTokenString, nil
 }
 
 // sendCode sends a code of type codeType to email
