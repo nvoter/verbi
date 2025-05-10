@@ -207,6 +207,25 @@ func (s *AuthService) Logout(refreshToken string) error {
 	return nil
 }
 
+// Refresh function to refresh access token
+func (s *AuthService) Refresh(token string) (string, error) {
+	refreshToken, err := s.RefreshTokenRepository.GetTokenByValue(token)
+	if err != nil {
+		return "", errors.New("could not get refresh token")
+	}
+
+	if refreshToken.ExpiresAt.Before(time.Now()) {
+		return "", errors.New("refresh token is expired")
+	}
+
+	accessToken, err := utils.GenerateAccessToken(refreshToken.UserID)
+	if err != nil {
+		return "", errors.New("could not generate access token")
+	}
+
+	return accessToken, nil
+}
+
 // sendCode sends a code of type codeType to email
 func (s *AuthService) sendCode(email string, codeType string) error {
 	confirmationCode := &models.UserCode{

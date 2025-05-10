@@ -27,6 +27,13 @@ func (r *RefreshTokenRepository) GetTokenByUserID(userID uint) (*models.RefreshT
 	return &refreshToken, err
 }
 
+// GetTokenByValue searches for a token in the database by its value
+func (r *RefreshTokenRepository) GetTokenByValue(token string) (*models.RefreshToken, error) {
+	var refreshToken models.RefreshToken
+	err := r.DB.Where("token = ?", token).First(&refreshToken).Error
+	return &refreshToken, err
+}
+
 // DeleteToken deletes token from the database
 func (r *RefreshTokenRepository) DeleteToken(token string) error {
 	return r.DB.Where("token = ?", token).Delete(&models.RefreshToken{}).Error
