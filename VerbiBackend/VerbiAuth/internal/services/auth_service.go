@@ -31,8 +31,8 @@ func NewAuthService(
 	}
 }
 
-// RequestRegistration starts the registration process
-func (s *AuthService) RequestRegistration(email, username, password string) error {
+// Register creates an account with user data in the database
+func (s *AuthService) Register(email, username, password string) error {
 	_, err := s.UserRepository.GetUserByEmail(email)
 	if err == nil {
 		return errors.New("user with this email already exists")
@@ -67,8 +67,8 @@ func (s *AuthService) RequestRegistration(email, username, password string) erro
 	return nil
 }
 
-// Register completes the registration process
-func (s *AuthService) Register(email, code string) error {
+// ConfirmEmail confirms user email if the confirmation code is correct
+func (s *AuthService) ConfirmEmail(email, code string) error {
 	user, err := s.UserRepository.GetUserByEmail(email)
 	if err != nil {
 		return errors.New("could not get user by email")
@@ -93,8 +93,8 @@ func (s *AuthService) Register(email, code string) error {
 	return nil
 }
 
-// RequestResetPassword starts reset password process
-func (s *AuthService) RequestResetPassword(email, oldPassword string) error {
+// ResetPassword starts reset password process
+func (s *AuthService) ResetPassword(email, oldPassword string) error {
 	user, err := s.UserRepository.GetUserByEmail(email)
 	if err != nil {
 		return errors.New("user with this email doesn't exist")
@@ -112,8 +112,8 @@ func (s *AuthService) RequestResetPassword(email, oldPassword string) error {
 	return nil
 }
 
-// ResetPassword resets user's password
-func (s *AuthService) ResetPassword(email, newPassword, code string) error {
+// ConfirmResetPassword confirms the password reset if the code is correct
+func (s *AuthService) ConfirmResetPassword(email, newPassword, code string) error {
 	user, err := s.UserRepository.GetUserByEmail(email)
 	if err != nil {
 		return errors.New("user with this email doesn't exist")
@@ -195,6 +195,15 @@ func (s *AuthService) Login(emailOrUsername, password string) (string, string, e
 	}
 
 	return accessToken, refreshTokenString, nil
+}
+
+// Logout processes a logout request
+func (s *AuthService) Logout(refreshToken string) error {
+	err := s.RefreshTokenRepository.DeleteToken(refreshToken)
+	if err != nil {
+		return errors.New("could not delete refresh token")
+	}
+	return nil
 }
 
 // sendCode sends a code of type codeType to email
