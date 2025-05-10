@@ -32,9 +32,9 @@ func TestCreateCode(t *testing.T) {
 	repo := repositories.NewUserCodeRepository(db)
 
 	code := &models.UserCode{
-		UserID: 1,
-		Code:   "123456",
-		Type:   models.EmailConfirmation.String(),
+		UserEmail: "test@example.com",
+		Code:      "123456",
+		Type:      models.EmailConfirmation.String(),
 	}
 	err = repo.CreateCode(code)
 	assert.NoError(t, err)
@@ -54,9 +54,9 @@ func TestUpdateCode(t *testing.T) {
 	repo := repositories.NewUserCodeRepository(db)
 
 	code := &models.UserCode{
-		UserID: 1,
-		Code:   "123456",
-		Type:   models.EmailConfirmation.String(),
+		UserEmail: "test@example.com",
+		Code:      "123456",
+		Type:      models.EmailConfirmation.String(),
 	}
 	err = repo.CreateCode(code)
 	assert.NoError(t, err)
@@ -79,14 +79,14 @@ func TestDeleteCode(t *testing.T) {
 	repo := repositories.NewUserCodeRepository(db)
 
 	code := &models.UserCode{
-		UserID: 1,
-		Code:   "123456",
-		Type:   models.EmailConfirmation.String(),
+		UserEmail: "test@example.com",
+		Code:      "123456",
+		Type:      models.EmailConfirmation.String(),
 	}
 	err = repo.CreateCode(code)
 	assert.NoError(t, err)
 
-	err = repo.DeleteCode(code.UserID, code.Type)
+	err = repo.DeleteCode(code.UserEmail, code.Type)
 	assert.NoError(t, err)
 
 	err = db.First(&code, code.ID).Error
@@ -101,14 +101,14 @@ func TestGetUserCode(t *testing.T) {
 	repo := repositories.NewUserCodeRepository(db)
 
 	code := &models.UserCode{
-		UserID: 1,
-		Code:   "123456",
-		Type:   models.EmailConfirmation.String(),
+		UserEmail: "test@example.com",
+		Code:      "123456",
+		Type:      models.EmailConfirmation.String(),
 	}
 	err = repo.CreateCode(code)
 	assert.NoError(t, err)
 
-	foundCode, err := repo.GetUserCode(code.UserID, code.Type)
+	foundCode, err := repo.GetUserCode(code.UserEmail, code.Type)
 	assert.NoError(t, err)
 	assert.NotNil(t, foundCode)
 	assert.Equal(t, code.Code, foundCode.Code)

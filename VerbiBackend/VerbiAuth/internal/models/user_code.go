@@ -9,7 +9,7 @@ import (
 type UserCode struct {
 	gorm.Model
 	ID        uint      `gorm:"primaryKey"`
-	UserID    uint      `gorm:"not null;index"`
+	UserEmail string    `gorm:"not null;index"`
 	Code      string    `gorm:"size:6;not null"`
 	Type      string    `gorm:"size:20;not null"`
 	ExpiresAt time.Time `gorm:"not null"`

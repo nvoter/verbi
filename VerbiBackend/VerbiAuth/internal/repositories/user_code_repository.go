@@ -6,7 +6,7 @@ import (
 	"time"
 )
 
-// UserCodeRepository works with user code repository
+// UserCodeRepository works with user code database
 type UserCodeRepository struct {
 	DB *gorm.DB
 }
@@ -26,14 +26,14 @@ func (r *UserCodeRepository) UpdateCode(userCode *models.UserCode) error {
 	return r.DB.Updates(userCode).Error
 }
 
-// GetUserCode returns code by userId and type
-func (r *UserCodeRepository) GetUserCode(userID uint, codeType string) (*models.UserCode, error) {
+// GetUserCode returns code by userEmail and type
+func (r *UserCodeRepository) GetUserCode(userEmail string, codeType string) (*models.UserCode, error) {
 	var userCode models.UserCode
-	err := r.DB.Where("user_id = ? AND type = ? AND expires_at > ?", userID, codeType, time.Now()).First(&userCode).Error
+	err := r.DB.Where("user_email = ? AND type = ? AND expires_at > ?", userEmail, codeType, time.Now()).First(&userCode).Error
 	return &userCode, err
 }
 
 // DeleteCode deletes code from the database
-func (r *UserCodeRepository) DeleteCode(userId uint, codeType string) error {
-	return r.DB.Where("user_id = ? AND type = ?", userId, codeType).Delete(&models.UserCode{}).Error
+func (r *UserCodeRepository) DeleteCode(userEmail string, codeType string) error {
+	return r.DB.Where("user_email = ? AND type = ?", userEmail, codeType).Delete(&models.UserCode{}).Error
 }
