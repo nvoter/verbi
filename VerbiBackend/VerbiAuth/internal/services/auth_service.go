@@ -1,6 +1,7 @@
 package services
 
 import (
+	"VerbiAuth/internal/interfaces"
 	"VerbiAuth/internal/models"
 	"VerbiAuth/internal/repositories"
 	"VerbiAuth/internal/utils"
@@ -13,7 +14,7 @@ type AuthService struct {
 	UserRepository         *repositories.UserRepository
 	RefreshTokenRepository *repositories.RefreshTokenRepository
 	CodeRepository         *repositories.UserCodeRepository
-	MailService            *MailService
+	MailService            interfaces.MailServiceInterface
 }
 
 // NewAuthService creates a new authentication service
@@ -21,7 +22,7 @@ func NewAuthService(
 	userRepository *repositories.UserRepository,
 	refreshTokenRepository *repositories.RefreshTokenRepository,
 	codeRepository *repositories.UserCodeRepository,
-	mailService *MailService,
+	mailService interfaces.MailServiceInterface,
 ) *AuthService {
 	return &AuthService{
 		UserRepository:         userRepository,

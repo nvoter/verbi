@@ -9,8 +9,8 @@ import (
 	"testing"
 )
 
-// setupTestDB creates and sets up a temporary database in memory
-func setupTestDB() (*gorm.DB, error) {
+// setupTestUserCodeDB creates and sets up a temporary database in memory
+func setupTestUserCodeDB() (*gorm.DB, error) {
 	db, err := gorm.Open(sqlite.Open(":memory:"), &gorm.Config{})
 	if err != nil {
 		return nil, err
@@ -26,7 +26,7 @@ func setupTestDB() (*gorm.DB, error) {
 
 // TestCreateCode tests code creation
 func TestCreateCode(t *testing.T) {
-	db, err := setupTestDB()
+	db, err := setupTestUserCodeDB()
 	assert.NoError(t, err)
 
 	repo := repositories.NewUserCodeRepository(db)
@@ -48,7 +48,7 @@ func TestCreateCode(t *testing.T) {
 
 // TestUpdateCode tests code update
 func TestUpdateCode(t *testing.T) {
-	db, err := setupTestDB()
+	db, err := setupTestUserCodeDB()
 	assert.NoError(t, err)
 
 	repo := repositories.NewUserCodeRepository(db)
@@ -73,7 +73,7 @@ func TestUpdateCode(t *testing.T) {
 
 // TestDeleteCode tests code deletion
 func TestDeleteCode(t *testing.T) {
-	db, err := setupTestDB()
+	db, err := setupTestUserCodeDB()
 	assert.NoError(t, err)
 
 	repo := repositories.NewUserCodeRepository(db)
@@ -95,7 +95,7 @@ func TestDeleteCode(t *testing.T) {
 
 // TestGetUserCode tests code search by userId and codeType
 func TestGetUserCode(t *testing.T) {
-	db, err := setupTestDB()
+	db, err := setupTestUserCodeDB()
 	assert.NoError(t, err)
 
 	repo := repositories.NewUserCodeRepository(db)

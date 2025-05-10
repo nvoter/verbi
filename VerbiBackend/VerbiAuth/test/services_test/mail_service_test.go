@@ -9,7 +9,7 @@ import (
 
 // TestSendMail tests sending an email with mock service
 func TestSendMail(t *testing.T) {
-	err := godotenv.Load("")
+	err := godotenv.Load("mock.env")
 	assert.NoError(t, err)
 
 	mailService, err := services.NewMailService()

@@ -10,8 +10,8 @@ import (
 	"time"
 )
 
-// setupTestDB creates and sets up a temporary database in memory
-func setupTestDB() (*gorm.DB, error) {
+// setupTestRefreshTokenDB creates and sets up a temporary database in memory
+func setupTestRefreshTokenDB() (*gorm.DB, error) {
 	db, err := gorm.Open(sqlite.Open(":memory:"), &gorm.Config{})
 	if err != nil {
 		return nil, err
@@ -25,7 +25,7 @@ func setupTestDB() (*gorm.DB, error) {
 
 // TestCreateToken tests token creation
 func TestCreateToken(t *testing.T) {
-	db, err := setupTestDB()
+	db, err := setupTestRefreshTokenDB()
 	assert.NoError(t, err)
 	repo := repositories.NewRefreshTokenRepository(db)
 	token := &models.RefreshToken{
@@ -45,7 +45,7 @@ func TestCreateToken(t *testing.T) {
 
 // TestGetTokenByUserID tests getting token by user ID
 func TestGetTokenByUserID(t *testing.T) {
-	db, err := setupTestDB()
+	db, err := setupTestRefreshTokenDB()
 	assert.NoError(t, err)
 	repo := repositories.NewRefreshTokenRepository(db)
 	token := &models.RefreshToken{
@@ -64,7 +64,7 @@ func TestGetTokenByUserID(t *testing.T) {
 
 // TestDeleteToken tests deleting token
 func TestDeleteToken(t *testing.T) {
-	db, err := setupTestDB()
+	db, err := setupTestRefreshTokenDB()
 	assert.NoError(t, err)
 	repo := repositories.NewRefreshTokenRepository(db)
 	token := &models.RefreshToken{
