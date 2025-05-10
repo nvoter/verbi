@@ -25,6 +25,13 @@ func (r *UserRepository) UpdateUser(user *models.User) error {
 	return r.DB.Updates(user).Error
 }
 
+// GetUserById searches for a user in the database by id
+func (r *UserRepository) GetUserById(id uint) (*models.User, error) {
+	var user models.User
+	err := r.DB.Where("id = ?", id).First(&user).Error
+	return &user, err
+}
+
 // GetUserByEmail searches for a user in the database by email
 func (r *UserRepository) GetUserByEmail(email string) (*models.User, error) {
 	var user models.User
