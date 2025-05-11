@@ -3,6 +3,7 @@ package services
 import (
 	"VerbiAuth/internal/interfaces"
 	"VerbiAuth/internal/models"
+	"VerbiAuth/internal/models/responses"
 	"VerbiAuth/internal/repositories"
 	"VerbiAuth/internal/utils"
 	"errors"
@@ -161,27 +162,27 @@ func (s *AuthService) ResendCode(email, codeType string) error {
 }
 
 // Login processes a login request
-func (s *AuthService) Login(emailOrUsername, password string) (string, string, error) {
+func (s *AuthService) Login(emailOrUsername, password string) (*responses.LoginResponse, error) {
 	user, err := s.UserRepository.GetUserByEmail(emailOrUsername)
 	if err != nil {
 		user, err = s.UserRepository.GetUserByUsername(emailOrUsername)
 	}
 	if err != nil {
-		return "", "", errors.New("user doesn't exist")
+		return nil, errors.New("user doesn't exist")
 	}
 
 	if !utils.CheckPasswordHash(password, user.Password) {
-		return "", "", errors.New("invalid password")
+		return nil, errors.New("invalid password")
 	}
 
 	accessToken, err := utils.GenerateAccessToken(user.ID)
 	if err != nil {
-		return "", "", errors.New("could not generate access token")
+		return nil, errors.New("could not generate access token")
 	}
 
 	refreshTokenString, err := utils.GenerateRefreshToken()
 	if err != nil {
-		return "", "", errors.New("could not generate refresh token")
+		return nil, errors.New("could not generate refresh token")
 	}
 
 	refreshToken := &models.RefreshToken{
@@ -192,10 +193,14 @@ func (s *AuthService) Login(emailOrUsername, password string) (string, string, e
 
 	err = s.RefreshTokenRepository.CreateToken(refreshToken)
 	if err != nil {
-		return "", "", errors.New("could not save refresh token")
+		return nil, errors.New("could not save refresh token")
 	}
 
-	return accessToken, refreshTokenString, nil
+	return &responses.LoginResponse{
+		AccessToken:  accessToken,
+		RefreshToken: refreshToken.Token,
+		ExpiresIn:    time.Hour * 7 * 24,
+	}, nil
 }
 
 // Logout processes a logout request
