@@ -1,0 +1,383 @@
+basePath: /api/v1/
+definitions:
+  requests.ChangeUsernameRequest:
+    properties:
+      newUsername:
+        type: string
+    required:
+    - newUsername
+    type: object
+  requests.ConfirmResetPasswordRequest:
+    properties:
+      code:
+        maxLength: 6
+        minLength: 6
+        type: string
+      email:
+        type: string
+      new_password:
+        minLength: 8
+        type: string
+    required:
+    - code
+    - email
+    - new_password
+    type: object
+  requests.RegisterRequest:
+    properties:
+      email:
+        type: string
+      password:
+        minLength: 8
+        type: string
+      username:
+        type: string
+    required:
+    - email
+    - password
+    - username
+    type: object
+  responses.ErrorResponse:
+    properties:
+      error:
+        type: string
+    type: object
+  responses.GetUserInfoResponse:
+    properties:
+      email:
+        type: string
+      username:
+        type: string
+    type: object
+  responses.LoginResponse:
+    properties:
+      access_token:
+        type: string
+      expires_in:
+        type: string
+      refresh_token:
+        type: string
+    type: object
+  responses.RefreshResponse:
+    properties:
+      access_token:
+        type: string
+    type: object
+host: localhost:8080
+info:
+  contact: {}
+  description: Authentication and profile management actions
+  title: VerbiAuth API
+  version: "1.0"
+paths:
+  /auth/code:
+    get:
+      consumes:
+      - application/json
+      description: Resends confirmation code to user's email
+      operationId: resendCode
+      parameters:
+      - description: Email
+        in: query
+        name: email
+        required: true
+        type: string
+      - description: Code type
+        in: query
+        name: codeType
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Confirmation code sent
+          schema:
+            type: string
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/responses.ErrorResponse'
+      summary: Handles resend code request
+      tags:
+      - Auth
+  /auth/email:
+    get:
+      consumes:
+      - application/json
+      description: Checks the confirmation code and confirms user's email
+      operationId: confirmEmail
+      parameters:
+      - description: Email
+        in: query
+        name: email
+        required: true
+        type: string
+      - description: Code value
+        in: query
+        name: code
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Email confirmed successfully
+          schema:
+            type: string
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/responses.ErrorResponse'
+      summary: Confirms user's email
+      tags:
+      - Auth
+  /auth/login:
+    get:
+      consumes:
+      - application/json
+      description: Checks the correctness of account data and performs login
+      operationId: login
+      parameters:
+      - description: Email or username
+        in: query
+        name: emailOrUsername
+        required: true
+        type: string
+      - description: Password
+        in: header
+        name: password
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Successful login
+          schema:
+            $ref: '#/definitions/responses.LoginResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/responses.ErrorResponse'
+      summary: Handles user login
+      tags:
+      - Auth
+  /auth/logout:
+    get:
+      consumes:
+      - application/json
+      description: Performs logout
+      operationId: logout
+      parameters:
+      - description: Refresh Token
+        in: header
+        name: refreshToken
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Successful logout
+          schema:
+            type: string
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/responses.ErrorResponse'
+      summary: Handles user logout
+      tags:
+      - Auth
+  /auth/password:
+    get:
+      consumes:
+      - application/json
+      description: Sends confirmation code to user's email
+      operationId: resetPassword
+      parameters:
+      - description: Email
+        in: query
+        name: email
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Confirmation code sent
+          schema:
+            type: string
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/responses.ErrorResponse'
+      summary: Handles password reset
+      tags:
+      - Auth
+    put:
+      consumes:
+      - application/json
+      description: Checks the correctness of the confirmation code and updates info
+        if it's correct
+      operationId: confirmResetPassword
+      parameters:
+      - description: Request body
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/requests.ConfirmResetPasswordRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Password reset successfully
+          schema:
+            type: string
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/responses.ErrorResponse'
+      summary: Finishes the password reset process
+      tags:
+      - Auth
+  /auth/refresh:
+    get:
+      consumes:
+      - application/json
+      description: Checks the validity of refresh token and generates new access token
+      operationId: refresh
+      parameters:
+      - description: Refresh Token
+        in: header
+        name: refreshToken
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Successful refresh
+          schema:
+            $ref: '#/definitions/responses.RefreshResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/responses.ErrorResponse'
+      summary: Handles refresh of access token
+      tags:
+      - Auth
+  /auth/register:
+    post:
+      consumes:
+      - application/json
+      description: Register a new user with email, username and password
+      operationId: register
+      parameters:
+      - description: Registration form
+        in: body
+        name: form
+        required: true
+        schema:
+          $ref: '#/definitions/requests.RegisterRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Registration successful
+          schema:
+            type: string
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/responses.ErrorResponse'
+      summary: Register a new user
+      tags:
+      - Auth
+  /profile:
+    delete:
+      consumes:
+      - application/json
+      description: Deletes all user info from the database
+      operationId: delete
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Account successfully deleted
+          schema:
+            type: string
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/responses.ErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: Handles account deletion
+      tags:
+      - Profile
+    get:
+      consumes:
+      - application/json
+      description: Returns user's username and email
+      operationId: getUserInfo
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/responses.GetUserInfoResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/responses.ErrorResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/responses.ErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: Gives info about profile
+      tags:
+      - Profile
+    put:
+      consumes:
+      - application/json
+      description: Checks the accessibility of new username and updates info
+      operationId: changeUsername
+      parameters:
+      - description: Request body
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/requests.ChangeUsernameRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Username changed successfully
+          schema:
+            type: string
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/responses.ErrorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/responses.ErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: Handles username change
+      tags:
+      - Profile
+securityDefinitions:
+  BearerAuth:
+    description: '`Bearer <your_access_token>`'
+    in: header
+    name: Authorization
+    type: apiKey
+swagger: "2.0"

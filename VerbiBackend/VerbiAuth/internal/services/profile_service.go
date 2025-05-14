@@ -1,7 +1,7 @@
 package services
 
 import (
-	"VerbiAuth/internal/models"
+	"VerbiAuth/internal/models/responses"
 	"VerbiAuth/internal/repositories"
 	"errors"
 )
@@ -20,42 +20,46 @@ func NewProfileService(userRepository *repositories.UserRepository) *ProfileServ
 func (s *ProfileService) ChangeUsername(userId uint, newUsername string) error {
 	_, err := s.UserRepository.GetUserByUsername(newUsername)
 	if err == nil {
-		return errors.New("User with this username already exists")
+		return errors.New("user with this username already exists")
 	}
 
 	user, err := s.UserRepository.GetUserById(userId)
 	if err != nil {
-		return errors.New("User with this id not found")
+		return errors.New("user with this id not found")
 	}
 
 	user.Username = newUsername
 	err = s.UserRepository.UpdateUser(user)
 	if err != nil {
-		return errors.New("Error updating username")
+		return errors.New("error updating username")
 	}
 
 	return nil
 }
 
 // GetUserInfo method to get user data
-func (s *ProfileService) GetUserInfo(userId uint) (*models.User, error) {
+func (s *ProfileService) GetUserInfo(userId uint) (*responses.GetUserInfoResponse, error) {
 	user, err := s.UserRepository.GetUserById(userId)
 	if err != nil {
-		return nil, errors.New("User with this id not found")
+		return nil, errors.New("user with this id not found")
 	}
-	return user, nil
+	response := responses.GetUserInfoResponse{
+		Username: user.Username,
+		Email:    user.Email,
+	}
+	return &response, nil
 }
 
 // DeleteAccount function to delete profile from the app
 func (s *ProfileService) DeleteAccount(userId uint) error {
 	user, err := s.UserRepository.GetUserById(userId)
 	if err != nil {
-		return errors.New("User with this id not found")
+		return errors.New("user with this id not found")
 	}
 
 	err = s.UserRepository.DeleteUser(user)
 	if err != nil {
-		return errors.New("User with this id not found")
+		return errors.New("user with this id not found")
 	}
 
 	return nil

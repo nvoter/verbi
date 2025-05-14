@@ -1,6 +1,6 @@
 package requests
 
 // ChangeUsernameRequest represents data required to change username
-var ChangeUsernameRequest struct {
+type ChangeUsernameRequest struct {
 	NewUsername string `json:"newUsername" binding:"required"`
 }

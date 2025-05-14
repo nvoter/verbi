@@ -1,4 +1,4 @@
-package mock_models
+package mocks
 
 // MockMailService creates a mock implementation of mail service
 type MockMailService struct {
@@ -14,7 +14,7 @@ func NewMockMailService() *MockMailService {
 	}
 }
 
-// SendMail function with a mock implementation of SendMail function of MailService
+// SendMail mock implementation of SendMail function of MailService
 func (m *MockMailService) SendMail(to, subject, body string) error {
 	m.SendMailCalled = true
 	return m.SendMailError

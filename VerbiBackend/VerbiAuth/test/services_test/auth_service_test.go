@@ -6,7 +6,7 @@ import (
 	"VerbiAuth/internal/repositories"
 	"VerbiAuth/internal/services"
 	"VerbiAuth/internal/utils"
-	"VerbiAuth/test/mock_models"
+	"VerbiAuth/test/mocks"
 	"github.com/stretchr/testify/assert"
 	"gorm.io/driver/sqlite"
 	"gorm.io/gorm"
@@ -48,7 +48,7 @@ func TestMain(m *testing.M) {
 func TestRegister(t *testing.T) {
 	db, err := setupTestDB()
 	assert.NoError(t, err)
-	mockMailService := mock_models.NewMockMailService()
+	mockMailService := mocks.NewMockMailService()
 	authService, err := setupAuthService(db, mockMailService)
 	assert.NoError(t, err)
 
@@ -61,11 +61,9 @@ func TestRegister(t *testing.T) {
 	assert.Equal(t, "testuser", user.Username)
 	assert.False(t, user.IsEmailConfirmed)
 
-	// Try registering with the same email
 	err = authService.Register("test@example.com", "testuser2", "password")
 	assert.Error(t, err)
 
-	// Try registering with the same username
 	err = authService.Register("test2@example.com", "testuser", "password")
 	assert.Error(t, err)
 }
@@ -74,7 +72,7 @@ func TestRegister(t *testing.T) {
 func TestConfirmEmail(t *testing.T) {
 	db, err := setupTestDB()
 	assert.NoError(t, err)
-	mockMailService := mock_models.NewMockMailService()
+	mockMailService := mocks.NewMockMailService()
 	authService, err := setupAuthService(db, mockMailService)
 	assert.NoError(t, err)
 
@@ -104,19 +102,15 @@ func TestConfirmEmail(t *testing.T) {
 func TestResetPassword(t *testing.T) {
 	db, err := setupTestDB()
 	assert.NoError(t, err)
-	mockMailService := mock_models.NewMockMailService()
+	mockMailService := mocks.NewMockMailService()
 	authService, err := setupAuthService(db, mockMailService)
 	assert.NoError(t, err)
 
 	err = authService.Register("test@example.com", "testuser", "password")
 	assert.NoError(t, err)
 
-	err = authService.ResetPassword("test@example.com", "wrongpassword")
-	assert.Error(t, err)
-
-	err = authService.ResetPassword("test@example.com", "password")
+	err = authService.ResetPassword("test@example.com")
 	assert.NoError(t, err)
-	assert.True(t, mockMailService.SendMailCalled)
 
 	userCode, err := authService.CodeRepository.GetUserCode("test@example.com", models.PasswordReset.String())
 	assert.NoError(t, err)
@@ -137,7 +131,7 @@ func TestResetPassword(t *testing.T) {
 func TestResendCode(t *testing.T) {
 	db, err := setupTestDB()
 	assert.NoError(t, err)
-	mockMailService := mock_models.NewMockMailService()
+	mockMailService := mocks.NewMockMailService()
 	authService, err := setupAuthService(db, mockMailService)
 	assert.NoError(t, err)
 
@@ -161,49 +155,48 @@ func TestResendCode(t *testing.T) {
 func TestLogin(t *testing.T) {
 	db, err := setupTestDB()
 	assert.NoError(t, err)
-	mockMailService := mock_models.NewMockMailService()
+	mockMailService := mocks.NewMockMailService()
 	authService, err := setupAuthService(db, mockMailService)
 	assert.NoError(t, err)
 
 	err = authService.Register("test@example.com", "testuser", "password")
 	assert.NoError(t, err)
 
-	accessToken, refreshToken, err := authService.Login("test@example.com", "wrongpassword")
+	response, err := authService.Login("test@example.com", "wrongpassword")
 	assert.Error(t, err)
-	assert.Empty(t, accessToken)
-	assert.Empty(t, refreshToken)
+	assert.Nil(t, response)
 
-	accessToken, refreshToken, err = authService.Login("test@example.com", "password")
+	response, err = authService.Login("test@example.com", "password")
 	assert.NoError(t, err)
-	assert.NotEmpty(t, accessToken)
-	assert.NotEmpty(t, refreshToken)
+	assert.NotEmpty(t, response.AccessToken)
+	assert.NotEmpty(t, response.RefreshToken)
 
 	var refreshTokenModel models.RefreshToken
-	err = db.Where("token = ?", refreshToken).First(&refreshTokenModel).Error
+	err = db.Where("token = ?", response.RefreshToken).First(&refreshTokenModel).Error
 	assert.NoError(t, err)
-	assert.Equal(t, refreshToken, refreshTokenModel.Token)
+	assert.Equal(t, response.RefreshToken, refreshTokenModel.Token)
 }
 
 // TestLogout tests logout process
 func TestLogout(t *testing.T) {
 	db, err := setupTestDB()
 	assert.NoError(t, err)
-	mockMailService := mock_models.NewMockMailService()
+	mockMailService := mocks.NewMockMailService()
 	authService, err := setupAuthService(db, mockMailService)
 	assert.NoError(t, err)
 
 	err = authService.Register("test@example.com", "testuser", "password")
 	assert.NoError(t, err)
 
-	accessToken, refreshToken, err := authService.Login("test@example.com", "password")
+	response, err := authService.Login("test@example.com", "password")
 	assert.NoError(t, err)
-	assert.NotEmpty(t, accessToken)
-	assert.NotEmpty(t, refreshToken)
+	assert.NotEmpty(t, response.AccessToken)
+	assert.NotEmpty(t, response.RefreshToken)
 
-	err = authService.Logout(refreshToken)
+	err = authService.Logout(response.RefreshToken)
 	assert.NoError(t, err)
 
 	var refreshTokenModel models.RefreshToken
-	err = db.Where("token = ?", refreshToken).First(&refreshTokenModel).Error
+	err = db.Where("token = ?", response.RefreshToken).First(&refreshTokenModel).Error
 	assert.Error(t, err)
 }

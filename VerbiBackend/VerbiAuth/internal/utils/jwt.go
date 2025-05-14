@@ -25,7 +25,7 @@ func GenerateAccessToken(userID uint) (string, error) {
 
 // GenerateRefreshToken generates and returns refresh token
 func GenerateRefreshToken() (string, error) {
-	tokenBytes := make([]byte, 32)
+	tokenBytes := make([]byte, 64)
 	_, err := rand.Read(tokenBytes)
 	if err != nil {
 		return "", err
