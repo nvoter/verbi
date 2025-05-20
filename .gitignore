@@ -23,6 +23,7 @@ go.work.sum
 
 # env file
 .env
+mock.env
 
 # Xcode
 #
@@ -86,3 +87,7 @@ fastlane/report.xml
 fastlane/Preview.html
 fastlane/screenshots/**/*.png
 fastlane/test_output
+
+# IDEA
+**/.idea
+**/.DS_Store
