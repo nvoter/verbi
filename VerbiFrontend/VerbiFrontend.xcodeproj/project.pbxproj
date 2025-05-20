@@ -7,7 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		7C2765042D3517C900E16084 /* ComposableArchitecture in Frameworks */ = {isa = PBXBuildFile; productRef = 7C2765032D3517C900E16084 /* ComposableArchitecture */; };
+		7C2D31CA2DDCBE15004879C3 /* Swinject in Frameworks */ = {isa = PBXBuildFile; productRef = 7C2D31C92DDCBE15004879C3 /* Swinject */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -40,7 +40,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				7C2765042D3517C900E16084 /* ComposableArchitecture in Frameworks */,
+				7C2D31CA2DDCBE15004879C3 /* Swinject in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -84,7 +84,7 @@
 			);
 			name = VerbiFrontend;
 			packageProductDependencies = (
-				7C2765032D3517C900E16084 /* ComposableArchitecture */,
+				7C2D31C92DDCBE15004879C3 /* Swinject */,
 			);
 			productName = VerbiFrontend;
 			productReference = 7C627C132D3501C30052C895 /* VerbiFrontend.app */;
@@ -116,8 +116,8 @@
 			mainGroup = 7C627C0A2D3501C30052C895;
 			minimizedProjectReferenceProxies = 1;
 			packageReferences = (
-				7C2765022D3517C900E16084 /* XCRemoteSwiftPackageReference "swift-composable-architecture" */,
 				7CA346CF2D3E9226000C2525 /* XCRemoteSwiftPackageReference "SwiftLintPlugins" */,
+				7C2D31C82DDCBE15004879C3 /* XCRemoteSwiftPackageReference "Swinject" */,
 			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = 7C627C142D3501C30052C895 /* Products */;
@@ -178,6 +178,7 @@
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = Q843A7Y3XB;
 				ENABLE_USER_SCRIPT_SANDBOXING = NO;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = VerbiFrontend/Info.plist;
@@ -207,6 +208,7 @@
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = Q843A7Y3XB;
 				ENABLE_USER_SCRIPT_SANDBOXING = NO;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = VerbiFrontend/Info.plist;
@@ -374,12 +376,12 @@
 /* End XCConfigurationList section */
 
 /* Begin XCRemoteSwiftPackageReference section */
-		7C2765022D3517C900E16084 /* XCRemoteSwiftPackageReference "swift-composable-architecture" */ = {
+		7C2D31C82DDCBE15004879C3 /* XCRemoteSwiftPackageReference "Swinject" */ = {
 			isa = XCRemoteSwiftPackageReference;
-			repositoryURL = "https://github.com/pointfreeco/swift-composable-architecture.git";
+			repositoryURL = "https://github.com/Swinject/Swinject.git";
 			requirement = {
 				kind = upToNextMajorVersion;
-				minimumVersion = 1.17.1;
+				minimumVersion = 2.9.1;
 			};
 		};
 		7CA346CF2D3E9226000C2525 /* XCRemoteSwiftPackageReference "SwiftLintPlugins" */ = {
@@ -393,10 +395,10 @@
 /* End XCRemoteSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
-		7C2765032D3517C900E16084 /* ComposableArchitecture */ = {
+		7C2D31C92DDCBE15004879C3 /* Swinject */ = {
 			isa = XCSwiftPackageProductDependency;
-			package = 7C2765022D3517C900E16084 /* XCRemoteSwiftPackageReference "swift-composable-architecture" */;
-			productName = ComposableArchitecture;
+			package = 7C2D31C82DDCBE15004879C3 /* XCRemoteSwiftPackageReference "Swinject" */;
+			productName = Swinject;
 		};
 /* End XCSwiftPackageProductDependency section */
 	};

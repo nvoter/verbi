@@ -42,6 +42,16 @@
         }
       }
     },
+    "Field cannot be empty" : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Поле не может быть пустым"
+          }
+        }
+      }
+    },
     "Files not found" : {
       "localizations" : {
         "ru" : {
@@ -59,6 +69,26 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Забыли пароль?"
+          }
+        }
+      }
+    },
+    "Get code" : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Получить код"
+          }
+        }
+      }
+    },
+    "Invalid email format" : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Некорректный email"
           }
         }
       }
@@ -132,6 +162,36 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "пароль"
+          }
+        }
+      }
+    },
+    "Password should contain at least 8 characters" : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Длина пароля должна быть не меньше 8 символов"
+          }
+        }
+      }
+    },
+    "Passwords do not match" : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Пароли не совпадают"
+          }
+        }
+      }
+    },
+    "Reset password" : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Сменить пароль"
           }
         }
       }

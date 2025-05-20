@@ -1,5 +1,5 @@
 //
-//  LoginView.swift
+//  AuthView.swift
 //  VerbiFrontend
 //
 //  Created by Анастасия Манушкина on 17.01.2025.
@@ -31,7 +31,18 @@ final class AuthView: UIViewController {
         static let signupButtonTitle: String = String(localized: "Sign up")
         static let forgotPasswordButtonTitle: String = String(localized: "Forgot your password?")
         static let nextButtonTitle: String = String(localized: "Next")
+        static let getCodeButtonTitle: String = String(localized: "Get code")
+        static let resetPasswordButtonTitle: String = String(localized: "Reset password")
+        static let fatalErrorMessage: String = "init(coder:) has not been implemented"
         static let backgroundColor: String = "backgroundColor"
+        static let usernameError: String = String(localized: "Field cannot be empty")
+        static let emailError: String = String(localized: "Invalid email format")
+        static let passwordError: String = String(localized: "Password should contain at least 8 characters")
+        static let confirmPasswordError: String = String(localized: "Passwords do not match")
+        static let errorFontSize: CGFloat = 10
+        static let error: String = "Error"
+        static let okString: String = "OK"
+        static let transitionDuration: TimeInterval = 0.3
     }
 
     // MARK: - UI Elements
@@ -66,6 +77,39 @@ final class AuthView: UIViewController {
         isSecure: true
     )
 
+    private let usernameErrorLabel: UILabel = {
+        let label = UILabel()
+        label.text = Constants.usernameError
+        label.font = UIFont(name: Constants.fontName, size: Constants.errorFontSize)
+        label.textColor = .red
+        label.isHidden = true
+        return label
+    }()
+    private let emailErrorLabel: UILabel = {
+        let label = UILabel()
+        label.text = Constants.emailError
+        label.font = UIFont(name: Constants.fontName, size: Constants.errorFontSize)
+        label.textColor = .red
+        label.isHidden = true
+        return label
+    }()
+    private let passwordErrorLabel: UILabel = {
+        let label = UILabel()
+        label.text = Constants.passwordError
+        label.font = UIFont(name: Constants.fontName, size: Constants.errorFontSize)
+        label.textColor = .red
+        label.isHidden = true
+        return label
+    }()
+    private let confirmPasswordErrorLabel: UILabel = {
+        let label = UILabel()
+        label.text = Constants.confirmPasswordError
+        label.font = UIFont(name: Constants.fontName, size: Constants.errorFontSize)
+        label.textColor = .red
+        label.isHidden = true
+        return label
+    }()
+
     private lazy var actionButton: VerbiButton = {
         let button = VerbiButton(title: Constants.loginButtonTitle, isPrimary: true)
         button.addTarget(self, action: #selector(handlePrimaryAction), for: .touchUpInside)
@@ -85,22 +129,27 @@ final class AuthView: UIViewController {
     }()
 
     // MARK: - Properties
-    private var isLoginMode = true {
+    private var mode: AuthMode = .login {
         didSet {
             configureView()
         }
     }
 
-    private var isSecondStepMode = false {
-        didSet {
-            configureView()
-        }
-    }
+    private let presenter: AuthViewOutput
 
     // MARK: - Lifecycle
     override func viewDidLoad() {
         super.viewDidLoad()
         configureUI()
+    }
+
+    init(presenter: AuthViewOutput) {
+        self.presenter = presenter
+        super.init(nibName: nil, bundle: nil)
+    }
+
+    required init?(coder: NSCoder) {
+        fatalError(Constants.fatalErrorMessage)
     }
 
     // MARK: - Configuration
@@ -149,9 +198,13 @@ final class AuthView: UIViewController {
         )
 
         stackView.addArrangedSubview(usernameTextField)
+        stackView.addArrangedSubview(usernameErrorLabel)
         stackView.addArrangedSubview(emailTextField)
+        stackView.addArrangedSubview(emailErrorLabel)
         stackView.addArrangedSubview(passwordTextField)
+        stackView.addArrangedSubview(passwordErrorLabel)
         stackView.addArrangedSubview(confirmPasswordTextField)
+        stackView.addArrangedSubview(confirmPasswordErrorLabel)
         stackView.addArrangedSubview(actionButton)
         stackView.addArrangedSubview(secondaryActionButton)
         stackView.addArrangedSubview(forgotPasswordButton)
@@ -165,57 +218,119 @@ final class AuthView: UIViewController {
         passwordTextField.text = ""
         confirmPasswordTextField.text = ""
 
-        if isLoginMode {
-            usernameTextField.isHidden = true
-            emailTextField.isHidden = false
-            passwordTextField.isHidden = false
-            confirmPasswordTextField.isHidden = true
-            forgotPasswordButton.isHidden = false
+        usernameTextField.isHidden = mode != .registrationFirstStep && mode != .login
+        emailTextField.isHidden = mode != .registrationFirstStep && mode != .resetPasswordEmailStep
+        passwordTextField.isHidden = mode == .registrationFirstStep || mode == .resetPasswordEmailStep
+        confirmPasswordTextField.isHidden = mode != .registrationSecondStep && mode != .resetPasswordPasswordStep
+        forgotPasswordButton.isHidden = mode != .login
+
+        switch mode {
+        case .login:
             actionButton.setTitle(Constants.loginButtonTitle, for: .normal)
             secondaryActionButton.setTitle(Constants.signupButtonTitle, for: .normal)
-        } else if isSecondStepMode {
-            usernameTextField.isHidden = true
-            emailTextField.isHidden = true
-            passwordTextField.isHidden = false
-            confirmPasswordTextField.isHidden = false
-            forgotPasswordButton.isHidden = true
-            secondaryActionButton.setTitle(Constants.loginButtonTitle, for: .normal)
-            actionButton.setTitle(Constants.signupButtonTitle, for: .normal)
-        } else {
-            usernameTextField.isHidden = false
-            emailTextField.isHidden = false
-            passwordTextField.isHidden = true
-            confirmPasswordTextField.isHidden = true
-            forgotPasswordButton.isHidden = true
-            secondaryActionButton.setTitle(Constants.loginButtonTitle, for: .normal)
+        case .registrationFirstStep:
             actionButton.setTitle(Constants.nextButtonTitle, for: .normal)
+            secondaryActionButton.setTitle(Constants.loginButtonTitle, for: .normal)
+        case .registrationSecondStep:
+            actionButton.setTitle(Constants.signupButtonTitle, for: .normal)
+            secondaryActionButton.setTitle(Constants.loginButtonTitle, for: .normal)
+        case .resetPasswordEmailStep:
+            actionButton.setTitle(Constants.getCodeButtonTitle, for: .normal)
+            secondaryActionButton.setTitle(Constants.loginButtonTitle, for: .normal)
+        case .resetPasswordPasswordStep:
+            actionButton.setTitle(Constants.resetPasswordButtonTitle, for: .normal)
+            secondaryActionButton.setTitle(Constants.loginButtonTitle, for: .normal)
         }
     }
 
     // MARK: - Actions
     @objc
     private func handlePrimaryAction() {
-        if isLoginMode {
-            print("handle login")
-        } else if isSecondStepMode {
-            print("handle registration")
-        } else {
-            isSecondStepMode.toggle()
-            UIView.transition(with: stackView, duration: 0.3, options: .transitionCrossDissolve, animations: {
-                self.configureView()
-            })
-        }
+        hideErrors()
+        let credentials: AuthCredentials = AuthCredentials(
+            username: usernameTextField.text,
+            email: emailTextField.text,
+            password: passwordTextField.text,
+            confirmPassword: confirmPasswordTextField.text
+        )
+        presenter.didTapPrimaryAction(mode: mode, credentials: credentials)
     }
 
     @objc private func toggleAuthMode() {
-        isLoginMode.toggle()
-        isSecondStepMode = false
-        UIView.transition(with: stackView, duration: 0.3, options: .transitionCrossDissolve, animations: {
+        hideErrors()
+        presenter.didTapSecondaryAction(mode: mode)
+    }
+
+    @objc private func handleForgotPassword() {
+        hideErrors()
+        presenter.didTapForgotPassword()
+    }
+}
+
+// MARK: - AuthViewInput
+extension AuthView: AuthViewInput {
+    func showLoading(_ isLoading: Bool) {
+        actionButton.isLoading = isLoading
+    }
+
+    func showError(_ message: String) {
+        let alert = UIAlertController(
+            title: Constants.error,
+            message: message,
+            preferredStyle: .alert
+        )
+        alert.addAction(UIAlertAction(title: Constants.okString, style: .default))
+        present(alert, animated: true)
+    }
+
+    func showUsernameError() {
+        usernameErrorLabel.isHidden = false
+        usernameTextField.changeBorderColor(to: .red)
+    }
+
+    func showEmailError() {
+        emailErrorLabel.isHidden = false
+        emailTextField.changeBorderColor(to: .red)
+    }
+
+    func showPasswordError() {
+        passwordErrorLabel.isHidden = false
+        passwordTextField.changeBorderColor(to: .red)
+    }
+
+    func showConfirmPasswordError() {
+        confirmPasswordErrorLabel.isHidden = false
+        confirmPasswordTextField.changeBorderColor(to: .red)
+    }
+
+    func hideErrors() {
+        usernameErrorLabel.isHidden = true
+        usernameTextField.resetBorderColor()
+        emailErrorLabel.isHidden = true
+        emailTextField.resetBorderColor()
+        passwordErrorLabel.isHidden = true
+        passwordTextField.resetBorderColor()
+        confirmPasswordErrorLabel.isHidden = true
+        confirmPasswordTextField.resetBorderColor()
+    }
+
+    func transitionToMode(_ mode: AuthMode) {
+        self.mode = mode
+        UIView
+            .transition(
+                with: stackView,
+                duration: Constants.transitionDuration,
+                options: .transitionCrossDissolve,
+                animations: {
             self.configureView()
         })
     }
 
-    @objc private func handleForgotPassword() {
-        print("а голову ты дома не забыл?")
+    func navigateToMainScreen() {
+        navigationController?.setViewControllers([LibraryView()], animated: true)
+    }
+
+    func navigateToConfirmationScreen() {
+        navigationController?.pushViewController(ConfirmationView(), animated: true)
     }
 }

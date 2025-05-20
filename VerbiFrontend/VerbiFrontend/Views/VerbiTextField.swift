@@ -139,4 +139,12 @@ final class VerbiTextField: UITextField {
         self.layer.borderColor = isEditingMode ? UIColor.accent.cgColor : UIColor.clear.cgColor
         self.layer.borderWidth = isEditingMode ? Constants.editableBorderWidth : Constants.uneditableBorderWidth
     }
+
+    func changeBorderColor(to: UIColor) {
+        self.layer.borderColor = to.cgColor
+    }
+
+    func resetBorderColor() {
+        self.layer.borderColor = UIColor.accent.cgColor
+    }
 }
