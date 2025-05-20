@@ -17,6 +17,11 @@
                         <rect key="frame" x="0.0" y="0.0" width="393" height="852"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <subviews>
+                            <view contentMode="scaleToFill" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="u3A-r7-DGX">
+                                <rect key="frame" x="-162" y="-78" width="716" height="1009"/>
+                                <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+                                <color key="backgroundColor" red="0.2588235438" green="0.43137252329999998" blue="0.9529411793" alpha="1" colorSpace="custom" customColorSpace="displayP3"/>
+                            </view>
                             <imageView clipsSubviews="YES" userInteractionEnabled="NO" contentMode="center" image="Verbi Launch Screen" id="IzJ-9w-ZPO">
                                 <rect key="frame" x="0.0" y="0.0" width="393" height="852"/>
                                 <autoresizingMask key="autoresizingMask" flexibleMinX="YES" widthSizable="YES" flexibleMaxX="YES" flexibleMinY="YES" heightSizable="YES" flexibleMaxY="YES"/>
