@@ -43,6 +43,16 @@ final class AuthView: UIViewController {
         static let error: String = "Error"
         static let okString: String = "OK"
         static let transitionDuration: TimeInterval = 0.3
+        static let titleText: String = String(localized: "Enter confirmation code")
+        static let confirmButtonTitle: String = String(localized: "Confirm")
+        static let resendCodeButtonTitle: String = String(localized: "Resend code")
+        static let codeInputFieldCount: Int = 6
+        static let codeInputFieldWidth: CGFloat = 50
+        static let codeInputFieldHeight: CGFloat = 60
+        static let codeInputFieldSpacing: CGFloat = 8
+        static let cooldown: Int = 60
+        static let timerText1: String = String(localized: "Resend code in")
+        static let timerText2: String = String(localized: "s")
     }
 
     // MARK: - UI Elements
@@ -128,13 +138,55 @@ final class AuthView: UIViewController {
         return button
     }()
 
+    private let titleLabel: UILabel = {
+        let label = UILabel()
+        label.text = Constants.titleText
+        label.font = UIFont(name: Constants.fontName, size: 20)
+        label.textColor = UIColor.accent
+        label.textAlignment = .center
+        return label
+    }()
+
+    private lazy var codeInputFields: [VerbiTextField] = {
+        var fields: [VerbiTextField] = []
+        for _ in 0..<Constants.codeInputFieldCount {
+            let field = VerbiTextField()
+            field.keyboardType = .numberPad
+            field.textAlignment = .center
+            field.font = UIFont(name: Constants.fontName, size: Constants.fontSize)
+            field.layer.cornerRadius = Constants.cornerRadius
+            field.layer.borderColor = UIColor.accent.cgColor
+            field.layer.borderWidth = 1
+            field.widthAnchor.constraint(equalToConstant: Constants.codeInputFieldWidth).isActive = true
+            field.heightAnchor.constraint(equalToConstant: Constants.codeInputFieldHeight).isActive = true
+            field.addTarget(self, action: #selector(textFieldDidChange(_:)), for: .editingChanged)
+            fields.append(field)
+        }
+        return fields
+    }()
+
+    private lazy var codeInputStackView: UIStackView = {
+        let stackView = UIStackView(arrangedSubviews: codeInputFields)
+        stackView.axis = .horizontal
+        stackView.spacing = Constants.codeInputFieldSpacing
+        stackView.distribution = .equalSpacing
+        return stackView
+    }()
+
+    private lazy var resendCodeButton: VerbiButton = {
+        let button = VerbiButton(title: Constants.resendCodeButtonTitle)
+        button.addTarget(self, action: #selector(handleResendCode), for: .touchUpInside)
+        return button
+    }()
+
     // MARK: - Properties
     private var mode: AuthMode = .login {
         didSet {
             configureView()
         }
     }
-
+    private var timer: Timer?
+    private var remainingSeconds: Int = 0
     private let presenter: AuthViewOutput
 
     // MARK: - Lifecycle
@@ -197,6 +249,8 @@ final class AuthView: UIViewController {
             ]
         )
 
+        stackView.addArrangedSubview(titleLabel)
+        stackView.addArrangedSubview(codeInputStackView)
         stackView.addArrangedSubview(usernameTextField)
         stackView.addArrangedSubview(usernameErrorLabel)
         stackView.addArrangedSubview(emailTextField)
@@ -208,21 +262,21 @@ final class AuthView: UIViewController {
         stackView.addArrangedSubview(actionButton)
         stackView.addArrangedSubview(secondaryActionButton)
         stackView.addArrangedSubview(forgotPasswordButton)
+        stackView.addArrangedSubview(resendCodeButton)
 
         configureView()
     }
 
     private func configureView() {
-        usernameTextField.text = ""
-        emailTextField.text = ""
-        passwordTextField.text = ""
-        confirmPasswordTextField.text = ""
-
         usernameTextField.isHidden = mode != .registrationFirstStep && mode != .login
         emailTextField.isHidden = mode != .registrationFirstStep && mode != .resetPasswordEmailStep
-        passwordTextField.isHidden = mode == .registrationFirstStep || mode == .resetPasswordEmailStep
+        passwordTextField.isHidden = mode != .login && mode != .registrationSecondStep && mode != .resetPasswordPasswordStep
         confirmPasswordTextField.isHidden = mode != .registrationSecondStep && mode != .resetPasswordPasswordStep
         forgotPasswordButton.isHidden = mode != .login
+        titleLabel.isHidden = mode != .confirmEmail && mode != .confirmResetPassword
+        codeInputStackView.isHidden = mode != .confirmEmail && mode != .confirmResetPassword
+        resendCodeButton.isHidden = mode != .confirmEmail && mode != .confirmResetPassword
+        secondaryActionButton.isHidden = mode == .confirmEmail || mode == .confirmResetPassword
 
         switch mode {
         case .login:
@@ -240,6 +294,8 @@ final class AuthView: UIViewController {
         case .resetPasswordPasswordStep:
             actionButton.setTitle(Constants.resetPasswordButtonTitle, for: .normal)
             secondaryActionButton.setTitle(Constants.loginButtonTitle, for: .normal)
+        case .confirmEmail, .confirmResetPassword:
+            actionButton.setTitle(Constants.confirmButtonTitle, for: .normal)
         }
     }
 
@@ -251,7 +307,8 @@ final class AuthView: UIViewController {
             username: usernameTextField.text,
             email: emailTextField.text,
             password: passwordTextField.text,
-            confirmPassword: confirmPasswordTextField.text
+            confirmPassword: confirmPasswordTextField.text,
+            code: getCodeFromFields()
         )
         presenter.didTapPrimaryAction(mode: mode, credentials: credentials)
     }
@@ -264,6 +321,77 @@ final class AuthView: UIViewController {
     @objc private func handleForgotPassword() {
         hideErrors()
         presenter.didTapForgotPassword()
+    }
+
+    @objc private func textFieldDidChange(_ textField: UITextField) {
+        guard let text = textField.text, !text.isEmpty else {
+            moveFocus(toPreviousTextField: textField)
+            actionButton.isEnabled = false
+            UIView.animate(withDuration: Constants.transitionDuration) {
+                self.actionButton.alpha = 0.5
+            }
+            return
+        }
+
+        if text.count > 1 {
+            textField.text = String(text.last ?? " ")
+        }
+
+        moveFocus(toNextTextField: textField)
+
+        if allFilled() {
+            actionButton.isEnabled = true
+            UIView.animate(withDuration: Constants.transitionDuration) {
+                self.actionButton.alpha = 1
+            }
+        } else {
+            actionButton.isEnabled = false
+            UIView.animate(withDuration: Constants.transitionDuration) {
+                self.actionButton.alpha = 0.5
+            }
+        }
+    }
+
+    @objc private func handleResendCode() {
+        guard let email = emailTextField.text else { return }
+        presenter.didTapResendCode(mode: mode, email: email)
+    }
+
+    // MARK: - Methods
+    private func getCodeFromFields() -> String? {
+        let code = codeInputFields.compactMap(\.text).joined()
+        return code.isEmpty ? nil : code
+    }
+
+    private func moveFocus(toNextTextField currentTextField: UITextField) {
+        guard let textField = currentTextField as? VerbiTextField else { return }
+        guard let currentIndex = codeInputFields.firstIndex(
+            of: textField
+        ), currentIndex < codeInputFields.count - 1 else {
+            return
+        }
+
+        codeInputFields[currentIndex + 1].becomeFirstResponder()
+    }
+
+    private func moveFocus(toPreviousTextField currentTextField: UITextField) {
+        guard let textField = currentTextField as? VerbiTextField else { return }
+        guard let currentIndex = codeInputFields.firstIndex(
+            of: textField
+        ), currentIndex > 0 else {
+            return
+        }
+
+        codeInputFields[currentIndex - 1].becomeFirstResponder()
+    }
+
+    private func allFilled() -> Bool {
+        for textField in codeInputFields {
+            guard let text = textField.text, !text.isEmpty else {
+                return false
+            }
+        }
+        return true
     }
 }
 
@@ -320,17 +448,44 @@ extension AuthView: AuthViewInput {
             .transition(
                 with: stackView,
                 duration: Constants.transitionDuration,
-                options: .transitionCrossDissolve,
+                options: .transitionFlipFromLeft,
                 animations: {
             self.configureView()
         })
     }
 
-    func navigateToMainScreen() {
-        navigationController?.setViewControllers([LibraryView()], animated: true)
+    func highlightEmptyFields() {
+        for index in 0..<Constants.codeInputFieldCount {
+            if codeInputFields[index].text?.isEmpty ?? true {
+                UIView.animate(withDuration: Constants.transitionDuration) {
+                    self.codeInputFields[index].changeBorderColor(to: .red)
+                }
+            }
+        }
     }
 
-    func navigateToConfirmationScreen() {
-        navigationController?.pushViewController(ConfirmationView(), animated: true)
+    func showTimer() {
+        remainingSeconds = Constants.cooldown
+        resendCodeButton.isEnabled = false
+        resendCodeButton.setTitle("\(Constants.timerText1) \(remainingSeconds) \(Constants.timerText2)", for: .disabled)
+        timer = Timer.scheduledTimer(withTimeInterval: 1, repeats: true) { [weak self] timer in
+            guard let self else { return }
+            self.remainingSeconds -= 1
+            self.secondaryActionButton
+                .setTitle(
+                    "\(Constants.timerText1) \(self.remainingSeconds) \(Constants.timerText2)",
+                    for: .normal
+                )
+            if self.remainingSeconds <= 0 {
+                timer.invalidate()
+                self.timer = nil
+                self.secondaryActionButton.isEnabled = true
+                self.secondaryActionButton
+                    .setTitle(
+                        Constants.resendCodeButtonTitle,
+                        for: .normal
+                    )
+            }
+        }
     }
 }

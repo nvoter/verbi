@@ -21,7 +21,9 @@ final class AuthPresenter: AuthViewOutput, AuthInteractorOutput {
 
     // MARK: - AuthViewOutput
     func didTapPrimaryAction(mode: AuthMode, credentials: AuthCredentials) {
-        checkCredentials(credentials, mode: mode)
+        if !checkCredentials(credentials, mode: mode) {
+            return
+        }
 
         switch mode {
         case .login:
@@ -30,12 +32,19 @@ final class AuthPresenter: AuthViewOutput, AuthInteractorOutput {
         case .registrationFirstStep:
             view?.transitionToMode(.registrationSecondStep)
         case .registrationSecondStep:
-            interactor.register(credentials: credentials)
             view?.showLoading(true)
+            interactor.register(credentials: credentials)
         case .resetPasswordEmailStep:
             guard let email = credentials.email else { return }
             interactor.resetPassword(email: email)
+            view?.showLoading(true)
         case .resetPasswordPasswordStep:
+            interactor.confirmResetPassword(credentials: credentials)
+            view?.showLoading(true)
+        case .confirmEmail:
+            interactor.confirmEmail(credentials: credentials)
+            view?.showLoading(true)
+        case .confirmResetPassword:
             interactor.confirmResetPassword(credentials: credentials)
             view?.showLoading(true)
         }
@@ -53,6 +62,8 @@ final class AuthPresenter: AuthViewOutput, AuthInteractorOutput {
             view?.transitionToMode(.login)
         case .resetPasswordPasswordStep:
             view?.transitionToMode(.resetPasswordEmailStep)
+        case .confirmEmail, .confirmResetPassword:
+            break
         }
     }
 
@@ -60,15 +71,20 @@ final class AuthPresenter: AuthViewOutput, AuthInteractorOutput {
         view?.transitionToMode(.resetPasswordEmailStep)
     }
 
+    func didTapResendCode(mode: AuthMode, email: String) {
+        print("Resend code tapped")
+    }
+
     // MARK: - AuthInteractorOutput
     func didLoginSuccessfully() {
         view?.showLoading(false)
+        UserDefaultsService.shared.setAuthorized(true)
         router.navigateToMainScreen()
     }
 
     func didRegisterSuccessfully() {
         view?.showLoading(false)
-        router.navigateToConfirmationScreen()
+        view?.transitionToMode(.confirmEmail)
     }
 
     func didResetPasswordSuccessfully() {
@@ -86,33 +102,54 @@ final class AuthPresenter: AuthViewOutput, AuthInteractorOutput {
         view?.showError(error.localizedDescription)
     }
 
+    func didSendCodeSuccessfully() {
+        view?.showLoading(false)
+        view?.transitionToMode(.confirmResetPassword)
+    }
+
+    func didResendCodeSuccessfully() {
+        view?.showTimer()
+    }
+
+    func didConfirmEmailSuccessfully() {
+        view?.showLoading(false)
+        view?.transitionToMode(.login)
+    }
+
     // MARK: - Methods
-    private func checkCredentials(_ credentials: AuthCredentials, mode: AuthMode) {
+    private func checkCredentials(_ credentials: AuthCredentials, mode: AuthMode) -> Bool {
         if mode == .login || mode == .registrationFirstStep {
             guard let usernameOrEmail = credentials.username, !usernameOrEmail.isEmpty else {
                 view?.showUsernameError()
-                return
+                return false
             }
         }
         if mode == .registrationFirstStep || mode == .resetPasswordEmailStep {
             guard let email = credentials.email, isValidEmail(email) else {
                 view?.showEmailError()
-                return
+                return false
             }
         }
         if mode == .resetPasswordPasswordStep || mode == .registrationSecondStep || mode == .login {
             guard let password = credentials.password, !password.isEmpty, password.count >= 8 else {
                 view?.showPasswordError()
-                return
+                return false
             }
         }
         if mode == .resetPasswordPasswordStep || mode == .registrationSecondStep {
             guard let confirmPassword = credentials.confirmPassword,
             !confirmPassword.isEmpty, confirmPassword == credentials.password else {
                 view?.showConfirmPasswordError()
-                return
+                return false
             }
         }
+        if mode == .confirmEmail || mode == .confirmResetPassword {
+            guard let code = credentials.code, !code.isEmpty, code.count == 6 else {
+                view?.highlightEmptyFields()
+                return false
+            }
+        }
+        return true
     }
 
     private func isValidEmail(_ email: String) -> Bool {

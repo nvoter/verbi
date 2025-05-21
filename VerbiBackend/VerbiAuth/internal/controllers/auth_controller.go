@@ -72,6 +72,10 @@ func (c *AuthController) ConfirmEmail(ctx *gin.Context) {
 
 	err := c.AuthService.ConfirmEmail(email, code)
 	if err != nil {
+		if err.Error() == "code does not match" {
+			ctx.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+			return
+		}
 		ctx.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}

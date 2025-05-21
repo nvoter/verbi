@@ -8,6 +8,8 @@
 
 /* Begin PBXBuildFile section */
 		7C2D31CA2DDCBE15004879C3 /* Swinject in Frameworks */ = {isa = PBXBuildFile; productRef = 7C2D31C92DDCBE15004879C3 /* Swinject */; };
+		7C5D09E92DDD13960011D5B8 /* Alamofire in Frameworks */ = {isa = PBXBuildFile; productRef = 7C5D09E82DDD13960011D5B8 /* Alamofire */; };
+		7C5D09FC2DDE25150011D5B8 /* KeychainAccess in Frameworks */ = {isa = PBXBuildFile; productRef = 7C5D09FB2DDE25150011D5B8 /* KeychainAccess */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -41,6 +43,8 @@
 			buildActionMask = 2147483647;
 			files = (
 				7C2D31CA2DDCBE15004879C3 /* Swinject in Frameworks */,
+				7C5D09E92DDD13960011D5B8 /* Alamofire in Frameworks */,
+				7C5D09FC2DDE25150011D5B8 /* KeychainAccess in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -85,6 +89,8 @@
 			name = VerbiFrontend;
 			packageProductDependencies = (
 				7C2D31C92DDCBE15004879C3 /* Swinject */,
+				7C5D09E82DDD13960011D5B8 /* Alamofire */,
+				7C5D09FB2DDE25150011D5B8 /* KeychainAccess */,
 			);
 			productName = VerbiFrontend;
 			productReference = 7C627C132D3501C30052C895 /* VerbiFrontend.app */;
@@ -118,6 +124,8 @@
 			packageReferences = (
 				7CA346CF2D3E9226000C2525 /* XCRemoteSwiftPackageReference "SwiftLintPlugins" */,
 				7C2D31C82DDCBE15004879C3 /* XCRemoteSwiftPackageReference "Swinject" */,
+				7C5D09E72DDD13960011D5B8 /* XCRemoteSwiftPackageReference "Alamofire" */,
+				7C5D09FA2DDE25150011D5B8 /* XCRemoteSwiftPackageReference "KeychainAccess" */,
 			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = 7C627C142D3501C30052C895 /* Products */;
@@ -384,6 +392,22 @@
 				minimumVersion = 2.9.1;
 			};
 		};
+		7C5D09E72DDD13960011D5B8 /* XCRemoteSwiftPackageReference "Alamofire" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/Alamofire/Alamofire.git";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 5.10.2;
+			};
+		};
+		7C5D09FA2DDE25150011D5B8 /* XCRemoteSwiftPackageReference "KeychainAccess" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/kishikawakatsumi/KeychainAccess.git";
+			requirement = {
+				branch = master;
+				kind = branch;
+			};
+		};
 		7CA346CF2D3E9226000C2525 /* XCRemoteSwiftPackageReference "SwiftLintPlugins" */ = {
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/SimplyDanny/SwiftLintPlugins";
@@ -399,6 +423,16 @@
 			isa = XCSwiftPackageProductDependency;
 			package = 7C2D31C82DDCBE15004879C3 /* XCRemoteSwiftPackageReference "Swinject" */;
 			productName = Swinject;
+		};
+		7C5D09E82DDD13960011D5B8 /* Alamofire */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 7C5D09E72DDD13960011D5B8 /* XCRemoteSwiftPackageReference "Alamofire" */;
+			productName = Alamofire;
+		};
+		7C5D09FB2DDE25150011D5B8 /* KeychainAccess */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 7C5D09FA2DDE25150011D5B8 /* XCRemoteSwiftPackageReference "KeychainAccess" */;
+			productName = KeychainAccess;
 		};
 /* End XCSwiftPackageProductDependency section */
 	};

@@ -23,7 +23,13 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
         guard let windowScene = (scene as? UIWindowScene) else { return }
         window = UIWindow(frame: windowScene.coordinateSpace.bounds)
         window?.windowScene = windowScene
-        window?.rootViewController = AuthViewFactory.build()
+        if UserDefaultsService.shared.getAuthorized() {
+            let libraryView = LibraryView()
+            let navigationController = UINavigationController(rootViewController: libraryView)
+            window?.rootViewController = navigationController
+        } else {
+            window?.rootViewController = AuthViewFactory.build()
+        }
         window?.makeKeyAndVisible()
     }
 

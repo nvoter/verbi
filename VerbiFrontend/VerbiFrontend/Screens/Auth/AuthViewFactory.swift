@@ -16,10 +16,7 @@ final class AuthViewFactory {
             return ApiWorker()
         }
 
-        container.register(AuthRouterInput.self) { _ in
-            let router = AuthRouter(viewController: UINavigationController())
-            return router
-        }
+        let router = AuthRouter()
 
         container.register(AuthInteractorInput.self) { resolver in
             guard let apiWorker = resolver.resolve(ApiWorkerProtocol.self) else {
@@ -30,8 +27,7 @@ final class AuthViewFactory {
         }
 
         container.register(AuthViewOutput.self) { resolver in
-            guard let interactor = resolver.resolve(AuthInteractorInput.self) as? AuthInteractor,
-                  let router = resolver.resolve(AuthRouterInput.self) as? AuthRouter else {
+            guard let interactor = resolver.resolve(AuthInteractorInput.self) as? AuthInteractor else {
                 fatalError("Could not resolve authPresenter dependencies")
             }
             let presenter = AuthPresenter(interactor: interactor, router: router)
@@ -58,6 +54,8 @@ final class AuthViewFactory {
         guard let viewController = container.resolve(UIViewController.self, name: "AuthView") else {
             fatalError("Could not resolve authView")
         }
+
+        router.viewController = viewController
         return viewController
     }
 }

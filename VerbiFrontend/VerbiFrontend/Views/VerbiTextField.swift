@@ -33,7 +33,7 @@ final class VerbiTextField: UITextField {
 
     // MARK: - LifeCycle
     init(
-        placeholder: String,
+        placeholder: String? = nil,
         keyboardType: UIKeyboardType = .default,
         isSecure: Bool = false
     ) {
@@ -48,9 +48,9 @@ final class VerbiTextField: UITextField {
 
     // MARK: - Configuration
     private func configure(
-        placeholder: String,
+        placeholder: String? = nil,
         keyboardType: UIKeyboardType,
-        isSecure: Bool
+        isSecure: Bool = false
     ) {
         self.borderStyle = .none
         self.layer.borderWidth = 1
@@ -62,28 +62,29 @@ final class VerbiTextField: UITextField {
         self.keyboardType = keyboardType
         self.heightAnchor.constraint(equalToConstant: Constants.height).isActive = true
 
-        let paddingView = UIView(
-            frame: CGRect(
-                x: Constants.paddingX,
-                y: Constants.paddingY,
-                width: Constants.paddingWidth,
-                height: Constants.height
-            )
-        )
-        self.leftView = paddingView
-        self.leftViewMode = .always
-
-        let placeholderAttributes: [NSAttributedString.Key: Any] = [
-            .foregroundColor: UIColor.accent.withAlphaComponent(Constants.alpha),
-            .font: UIFont(
-                name: Constants.fontName,
-                size: Constants.fontSize
-            ) ?? UIFont
-                .systemFont(
-                    ofSize: Constants.fontSize
+        if let placeholder {
+            let paddingView = UIView(
+                frame: CGRect(
+                    x: Constants.paddingX,
+                    y: Constants.paddingY,
+                    width: Constants.paddingWidth,
+                    height: Constants.height
                 )
-        ]
-        self.attributedPlaceholder = NSAttributedString(string: placeholder, attributes: placeholderAttributes)
+            )
+            self.leftView = paddingView
+            self.leftViewMode = .always
+            let placeholderAttributes: [NSAttributedString.Key: Any] = [
+                .foregroundColor: UIColor.accent.withAlphaComponent(Constants.alpha),
+                .font: UIFont(
+                    name: Constants.fontName,
+                    size: Constants.fontSize
+                ) ?? UIFont
+                    .systemFont(
+                        ofSize: Constants.fontSize
+                    )
+            ]
+            self.attributedPlaceholder = NSAttributedString(string: placeholder, attributes: placeholderAttributes)
+        }
 
         if isSecure {
             configureSecurityToggle()
