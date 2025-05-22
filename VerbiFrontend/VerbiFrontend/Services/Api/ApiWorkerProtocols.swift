@@ -24,4 +24,7 @@ protocol ApiWorkerProtocol {
         completion: @escaping (Result<String, Error>) -> Void
     )
     func resendCode(email: String, codeType: String, completion: @escaping (Result<String, Error>) -> Void)
+    func getUserInfo(completion: @escaping (Result<UserInfoResponse, Error>) -> Void)
+    func updateUserInfo(username: String, completion: @escaping (Result<String, Error>) -> Void)
+    func deleteAccount(completion: @escaping (Result<String, Error>) -> Void)
 }

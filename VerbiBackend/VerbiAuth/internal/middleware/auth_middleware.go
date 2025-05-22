@@ -1,8 +1,10 @@
 package middleware
 
 import (
+	"fmt"
 	"github.com/dgrijalva/jwt-go"
 	"github.com/gin-gonic/gin"
+	"log"
 	"net/http"
 	"os"
 	"strings"
@@ -11,19 +13,23 @@ import (
 // AuthMiddleware checks access token
 func AuthMiddleware() gin.HandlerFunc {
 	return func(c *gin.Context) {
-		if strings.HasPrefix(c.Request.URL.Path, "/api/v1/auth") {
+		fmt.Println("Received Headers:", c.Request.Header)
+
+		if strings.HasPrefix(c.Request.URL.Path, "api/v1/auth") {
 			c.Next()
 			return
 		}
 
 		authHeader := c.GetHeader("Authorization")
 		if authHeader == "" {
+			log.Printf("Authorization header is empty")
 			c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{"error": "Authorization header is required"})
 			return
 		}
 
 		tokenParts := strings.Split(authHeader, " ")
 		if len(tokenParts) != 2 || tokenParts[0] != "Bearer" {
+			log.Printf("Authorization header is invalid %s", authHeader)
 			c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{"error": "Invalid token format"})
 			return
 		}
@@ -43,6 +49,7 @@ func AuthMiddleware() gin.HandlerFunc {
 		}
 
 		if claims, ok := token.Claims.(jwt.MapClaims); ok {
+			log.Printf("id %v", claims["user_id"])
 			c.Set("user_id", claims["user_id"])
 		}
 

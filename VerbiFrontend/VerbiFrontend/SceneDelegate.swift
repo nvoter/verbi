@@ -16,21 +16,53 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
         willConnectTo session: UISceneSession,
         options connectionOptions: UIScene.ConnectionOptions
     ) {
-        // Use this method to optionally configure and attach the UIWindow to the provided UIWindowScene
-        // If using a storyboard, the `window` property will automatically be initialized and attached to the scene.
-        // This delegate does not imply the connecting scene or session are new
-        // (see `application:configurationForConnectingSceneSession` instead).
         guard let windowScene = (scene as? UIWindowScene) else { return }
         window = UIWindow(frame: windowScene.coordinateSpace.bounds)
         window?.windowScene = windowScene
-        if UserDefaultsService.shared.getAuthorized() {
+        applyTheme()
+
+        if UserDefaultsService.shared.isAuthorized() {
             let libraryView = LibraryView()
-            let navigationController = UINavigationController(rootViewController: libraryView)
-            window?.rootViewController = navigationController
+            let navController = UINavigationController(rootViewController: libraryView)
+            window?.rootViewController = navController
         } else {
             window?.rootViewController = AuthViewFactory.build()
         }
         window?.makeKeyAndVisible()
+
+        NotificationCenter.default.addObserver(
+            self,
+            selector: #selector(themeChanged),
+            name: .themeChanged,
+            object: nil
+        )
+
+        NotificationCenter.default
+            .addObserver(
+                self,
+                selector: #selector(
+                    languageChanged
+                ),
+                name: .languageChanged,
+                object: nil
+            )
+    }
+
+    @objc private func themeChanged() {
+        applyTheme()
+    }
+
+    @objc private func languageChanged() {
+        let language = UserDefaultsService.shared.getLanguage()
+    }
+
+    func applyTheme() {
+        let theme = UserDefaultsService.shared.getTheme()
+        switch theme {
+        case .light: window?.overrideUserInterfaceStyle = .light
+        case .dark: window?.overrideUserInterfaceStyle = .dark
+        case .system: window?.overrideUserInterfaceStyle = .unspecified
+        }
     }
 
     func sceneDidDisconnect(_ scene: UIScene) {

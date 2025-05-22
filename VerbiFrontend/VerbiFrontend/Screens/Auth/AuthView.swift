@@ -452,6 +452,12 @@ extension AuthView: AuthViewInput {
                 animations: {
             self.configureView()
         })
+        if mode == .confirmEmail || mode == .confirmResetPassword {
+            actionButton.isEnabled = false
+            UIView.animate(withDuration: Constants.transitionDuration) {
+                self.actionButton.alpha = 0.5
+            }
+        }
     }
 
     func highlightEmptyFields() {

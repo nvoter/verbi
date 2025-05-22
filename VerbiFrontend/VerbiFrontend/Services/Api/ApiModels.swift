@@ -24,4 +24,13 @@ struct LoginResponse: Decodable {
 
 struct RefreshResponse: Decodable {
     let accessToken: String
+
+    enum CodingKeys: String, CodingKey {
+        case accessToken = "access_token"
+    }
+}
+
+struct UserInfoResponse: Decodable {
+    let username: String
+    let email: String
 }

@@ -3,11 +3,22 @@ package routers
 import (
 	"VerbiAuth/internal/controllers"
 	"VerbiAuth/internal/middleware"
+	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
+	"time"
 )
 
 // SetupRoutes sets up the routes for auth and profile management actions
 func SetupRoutes(r *gin.Engine, authController *controllers.AuthController, profileController *controllers.ProfileController) {
+	r.Use(cors.New(cors.Config{
+		AllowOrigins:     []string{"*"},
+		AllowMethods:     []string{"GET", "POST", "PUT", "DELETE"},
+		AllowHeaders:     []string{"Origin", "Content-Type", "Authorization", "Refresh-Token", "Password"},
+		ExposeHeaders:    []string{"Content-Length"},
+		AllowCredentials: true,
+		MaxAge:           12 * time.Hour,
+	}))
+
 	api := r.Group("/api/v1")
 
 	authGroup := api.Group("/auth")

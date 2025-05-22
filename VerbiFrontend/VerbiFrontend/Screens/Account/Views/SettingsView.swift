@@ -12,14 +12,9 @@ final class SettingsView: UIView {
     private enum Constants {
         static let fontName: String = "RubikOne-Regular"
         static let fontSize: CGFloat = 16
-        static let russian: String = "Русский"
-        static let english: String = "English"
-        static let light: String = String(localized: "Light")
-        static let dark: String = String(localized: "Dark")
-        static let system: String = String(localized: "System")
         static let cellReuseId: String = "SettingsRowCell"
-        static let logout: String = String(localized: "Logout")
-        static let deleteAccount: String = String(localized: "Delete account")
+        static let logoutTitle: String = String(localized: "Logout")
+        static let deleteAccountTitle: String = String(localized: "Delete account")
         static let languageSection: Int = 0
         static let themeSection: Int = 1
         static let actionsSection: Int = 2
@@ -30,8 +25,6 @@ final class SettingsView: UIView {
         static let alpha: CGFloat = 0.5
         static let headerFontSize: CGFloat = 14
         static let backgroundColor: String = "backgroundColor"
-        static let russianLanguage: Int = 0
-        static let lightTheme: Int = 0
         static let headerFrameX: CGFloat = 17
         static let headerFrameY: CGFloat = 0
         static let headerWidthPadding: CGFloat = 32
@@ -44,20 +37,25 @@ final class SettingsView: UIView {
     private lazy var tableView = UITableView(frame: .zero, style: .plain)
 
     // MARK: - Properties
-    private let languages: [String] = [Constants.russian, Constants.english]
-    private let themes: [String] = [Constants.light, Constants.dark, Constants.system]
-    private let actions: [String] = [Constants.logout, Constants.deleteAccount]
-    private var selectedLanguageIndex: Int = Constants.russianLanguage
-    private var selectedThemeIndex: Int = Constants.lightTheme
+    var onThemeSelected: ((AppTheme) -> Void)?
+    var onLanguageSelected: ((AppLanguage) -> Void)?
+    var onLogout: (() -> Void)?
+    var onDeleteAccount: (() -> Void)?
+    private let languages = AppLanguage.allCases
+    private let themes = AppTheme.allCases
+    private let actions = [Constants.logoutTitle, Constants.deleteAccountTitle]
+    private var selectedLanguageIndex: Int = 0
+    private var selectedThemeIndex: Int = 0
 
     // MARK: - LifeCycle
     override init(frame: CGRect) {
         super.init(frame: frame)
         configureTableView()
+        setupInitialSelections()
     }
 
     required init?(coder: NSCoder) {
-        fatalError()
+        fatalError(Constants.fatalErrorMessage)
     }
 
     // MARK: - Configuration
@@ -66,10 +64,10 @@ final class SettingsView: UIView {
         tableView.dataSource = self
         tableView.register(SettingsRowCell.self, forCellReuseIdentifier: Constants.cellReuseId)
         tableView.translatesAutoresizingMaskIntoConstraints = false
+        tableView.backgroundColor = .clear
+        tableView.separatorStyle = .none
 
         addSubview(tableView)
-
-        tableView.backgroundColor = .clear
 
         NSLayoutConstraint.activate([
             tableView.topAnchor.constraint(equalTo: topAnchor),
@@ -78,8 +76,17 @@ final class SettingsView: UIView {
             tableView.trailingAnchor.constraint(equalTo: trailingAnchor)
         ])
     }
+
+    private func setupInitialSelections() {
+        let currentTheme = UserDefaultsService.shared.getTheme()
+        selectedThemeIndex = AppTheme.allCases.firstIndex { $0.rawValue == currentTheme.rawValue } ?? 0
+
+        let currentLanguage = UserDefaultsService.shared.getLanguage()
+        selectedLanguageIndex = AppLanguage.allCases.firstIndex { $0.rawValue == currentLanguage.rawValue } ?? 0
+    }
 }
 
+// MARK: - UITableViewDelegate, UITableViewDataSource
 extension SettingsView: UITableViewDelegate, UITableViewDataSource {
     func tableView(_ tableView: UITableView, viewForHeaderInSection section: Int) -> UIView? {
         let headerLabel = UILabel()
@@ -109,7 +116,7 @@ extension SettingsView: UITableViewDelegate, UITableViewDataSource {
     }
 
     func numberOfSections(in tableView: UITableView) -> Int {
-        return Constants.numberOfSections
+        Constants.numberOfSections
     }
 
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
@@ -118,14 +125,6 @@ extension SettingsView: UITableViewDelegate, UITableViewDataSource {
         case Constants.themeSection: return themes.count
         case Constants.actionsSection: return actions.count
         default: return Constants.defaultNumberOfRowsInSection
-        }
-    }
-
-    func tableView(_ tableView: UITableView, titleForHeaderInSection section: Int) -> String? {
-        switch section {
-        case Constants.languageSection: return Constants.languageSectionTitle
-        case Constants.themeSection: return Constants.themeSectionTitle
-        default: return nil
         }
     }
 
@@ -153,11 +152,21 @@ extension SettingsView: UITableViewDelegate, UITableViewDataSource {
         switch indexPath.section {
         case Constants.languageSection:
             let language = languages[indexPath.row]
-            cell.configure(with: language, isDestructive: false, isSelected: indexPath.row == selectedLanguageIndex)
+            cell
+                .configure(
+                    with: language.localizedTitle,
+                    isDestructive: false,
+                    isSelected: indexPath.row == selectedLanguageIndex
+                )
 
         case Constants.themeSection:
             let theme = themes[indexPath.row]
-            cell.configure(with: theme, isDestructive: false, isSelected: indexPath.row == selectedThemeIndex)
+            cell
+                .configure(
+                    with: theme.localizedTitle,
+                    isDestructive: false,
+                    isSelected: indexPath.row == selectedThemeIndex
+                )
 
         case Constants.actionsSection:
             let action = actions[indexPath.row]
@@ -173,17 +182,26 @@ extension SettingsView: UITableViewDelegate, UITableViewDataSource {
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         switch indexPath.section {
         case Constants.languageSection:
+            let language = languages[indexPath.row]
             selectedLanguageIndex = indexPath.row
             tableView.reloadSections([Constants.languageSection], with: .automatic)
+            onLanguageSelected?(language)
 
         case Constants.themeSection:
+            let theme = themes[indexPath.row]
             selectedThemeIndex = indexPath.row
             tableView.reloadSections([Constants.themeSection], with: .automatic)
+            onThemeSelected?(theme)
+
+        case Constants.actionsSection:
+            switch indexPath.row {
+            case 0: onLogout?()
+            case 1: onDeleteAccount?()
+            default: break
+            }
 
         default:
             break
         }
-
-        tableView.deselectRow(at: indexPath, animated: true)
     }
 }

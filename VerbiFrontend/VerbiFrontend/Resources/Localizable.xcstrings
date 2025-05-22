@@ -52,12 +52,32 @@
         }
       }
     },
+    "English" : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Английский"
+          }
+        }
+      }
+    },
     "Enter confirmation code" : {
       "localizations" : {
         "ru" : {
           "stringUnit" : {
             "state" : "translated",
             "value" : "Введите код подтверждения"
+          }
+        }
+      }
+    },
+    "Error" : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ошибка"
           }
         }
       }
@@ -99,17 +119,6 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Получить код"
-          }
-        }
-      }
-    },
-    "Invalid code" : {
-      "extractionState" : "stale",
-      "localizations" : {
-        "ru" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Некорректный код"
           }
         }
       }
@@ -186,6 +195,16 @@
         }
       }
     },
+    "OK" : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "ОК"
+          }
+        }
+      }
+    },
     "password" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -243,6 +262,16 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Сменить пароль"
+          }
+        }
+      }
+    },
+    "Russian" : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Русский"
           }
         }
       }

@@ -4,6 +4,7 @@ import (
 	"VerbiAuth/internal/models/requests"
 	"VerbiAuth/internal/services"
 	"github.com/gin-gonic/gin"
+	"log"
 	"net/http"
 )
 
@@ -50,6 +51,8 @@ func (c *ProfileController) ChangeUsername(ctx *gin.Context) {
 
 	req := new(requests.ChangeUsernameRequest)
 	if err := ctx.ShouldBindJSON(&req); err != nil {
+		log.Println(err)
+		log.Println(req)
 		ctx.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
@@ -60,6 +63,7 @@ func (c *ProfileController) ChangeUsername(ctx *gin.Context) {
 			ctx.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 			return
 		}
+		log.Println(err)
 		ctx.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}
@@ -81,6 +85,7 @@ func (c *ProfileController) ChangeUsername(ctx *gin.Context) {
 // @Router /profile [get]
 func (c *ProfileController) GetUserInfo(ctx *gin.Context) {
 	userId, exists := ctx.Get("user_id")
+	log.Printf("userId: %v", userId)
 	if !exists {
 		ctx.JSON(http.StatusUnauthorized, gin.H{"error": "User not authenticated"})
 		return

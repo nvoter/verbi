@@ -98,46 +98,6 @@ final class ApiWorker: ApiWorkerProtocol {
             }
     }
 
-    // MARK: - Logout
-    func logout(refreshToken: String, completion: @escaping (Result<String, Error>) -> Void) {
-        let url = "\(baseURL)/auth/logout"
-        let headers: HTTPHeaders = [
-            "refreshToken": refreshToken
-        ]
-        AF.request(url, method: .get, headers: headers)
-            .validate()
-            .responseDecodable(of: ApiResponse.self) { response in
-                switch response.result {
-                case .success(let apiResponse):
-                    if let message = apiResponse.message {
-                        completion(.success(message))
-                    } else {
-                        completion(.failure(NSError(domain: "InvalidResponse", code: 400, userInfo: nil)))
-                    }
-                case .failure(let error):
-                    completion(.failure(error))
-                }
-            }
-    }
-
-    // MARK: - Refresh
-    func refresh(refreshToken: String, completion: @escaping (Result<String, Error>) -> Void) {
-        let url = "\(baseURL)/auth/refresh"
-        let headers: HTTPHeaders = [
-            "Refresh-token": refreshToken
-        ]
-        AF.request(url, method: .get, headers: headers)
-            .validate()
-            .responseDecodable(of: RefreshResponse.self) { response in
-                switch response.result {
-                case .success(let refreshResponse):
-                    completion(.success(refreshResponse.accessToken))
-                case .failure(let error):
-                    completion(.failure(error))
-                }
-            }
-    }
-
     // MARK: - Reset Password
     func resetPassword(email: String, completion: @escaping (Result<String, Error>) -> Void) {
         let url = "\(baseURL)/auth/password"
@@ -226,5 +186,115 @@ final class ApiWorker: ApiWorkerProtocol {
                     completion(.failure(error))
                 }
             }
+    }
+
+    // MARK: - Refresh
+    func refresh(refreshToken: String, completion: @escaping (Result<String, Error>) -> Void) {
+        let url = "\(baseURL)/auth/refresh"
+        let headers: HTTPHeaders = [
+            "Refresh-token": refreshToken
+        ]
+        AF.request(url, method: .get, headers: headers)
+            .validate()
+            .responseDecodable(of: RefreshResponse.self) { response in
+                switch response.result {
+                case .success(let refreshResponse):
+                    completion(.success(refreshResponse.accessToken))
+                case .failure(let error):
+                    completion(.failure(error))
+                }
+            }
+    }
+
+    // MARK: - Get User Info
+    func getUserInfo(completion: @escaping (Result<UserInfoResponse, Error>) -> Void) {
+        let url = "\(baseURL)/profile/"
+        let headers = getAuthHeaders()
+        let request = AF.request(url, method: .get, headers: headers)
+        request
+            .validate()
+            .responseDecodable(of: UserInfoResponse.self) { response in
+                switch response.result {
+                case .success(let userInfo):
+                    completion(.success(userInfo))
+                case .failure(let error):
+                    completion(.failure(error))
+                }
+            }
+    }
+
+    // MARK: - Update User Info
+    func updateUserInfo(username: String, completion: @escaping (Result<String, Error>) -> Void) {
+        let url = "\(baseURL)/profile/"
+        let parameters: [String: Any] = [
+            "new_username": username
+        ]
+
+        AF.request(url, method: .put, parameters: parameters, encoding: JSONEncoding.default, headers: getAuthHeaders())
+            .validate()
+            .responseDecodable(of: ApiResponse.self) { response in
+                switch response.result {
+                case .success(let apiResponse):
+                    if let message = apiResponse.message {
+                        completion(.success(message))
+                    } else {
+                        completion(.failure(NSError(domain: "InvalidResponse", code: 400, userInfo: nil)))
+                    }
+                case .failure(let error):
+                    completion(.failure(error))
+                }
+            }
+    }
+
+    // MARK: - Delete Account
+    func deleteAccount(completion: @escaping (Result<String, Error>) -> Void) {
+        let url = "\(baseURL)/profile/"
+
+        AF.request(url, method: .delete, headers: getAuthHeaders())
+            .validate()
+            .responseDecodable(of: ApiResponse.self) { response in
+                switch response.result {
+                case .success(let apiResponse):
+                    if let message = apiResponse.message {
+                        completion(.success(message))
+                    } else {
+                        completion(.failure(NSError(domain: "InvalidResponse", code: 400, userInfo: nil)))
+                    }
+                case .failure(let error):
+                    completion(.failure(error))
+                }
+            }
+    }
+
+    // MARK: - Logout
+    func logout(refreshToken: String, completion: @escaping (Result<String, Error>) -> Void) {
+        let url = "\(baseURL)/auth/logout/"
+        let headers: HTTPHeaders = [
+            "Refresh-token": refreshToken
+        ]
+        AF.request(url, method: .get, headers: headers)
+            .validate()
+            .responseDecodable(of: ApiResponse.self) { response in
+                switch response.result {
+                case .success(let apiResponse):
+                    if let message = apiResponse.message {
+                        completion(.success(message))
+                    } else {
+                        completion(.failure(NSError(domain: "InvalidResponse", code: 400, userInfo: nil)))
+                    }
+                case .failure(let error):
+                    completion(.failure(error))
+                }
+            }
+    }
+
+    // MARK: - Methods
+    private func getAuthHeaders() -> HTTPHeaders {
+        guard let accessToken = KeychainManager.shared.getAccessToken() else {
+            fatalError("Could not get access token")
+        }
+
+        let headers: HTTPHeaders = [.authorization(bearerToken: accessToken)]
+        return headers
     }
 }

@@ -14,6 +14,7 @@ final class SettingsRowCell: UITableViewCell {
         static let fontSize: CGFloat = 16
         static let fatalErrorMessage: String = "init(coder:) has not been implemented"
         static let destructiveButtonColor: String = "destructiveButtonColor"
+        static let checkmarkTintColor: String = "accent"
     }
 
     // MARK: - LifeCycle
@@ -31,7 +32,8 @@ final class SettingsRowCell: UITableViewCell {
         backgroundColor = .clear
         textLabel?.font = UIFont(name: Constants.fontName, size: Constants.fontSize)
         textLabel?.textColor = .accent
-        accessoryView?.tintColor = .accent
+        tintColor = UIColor(named: Constants.checkmarkTintColor)
+        selectionStyle = .none
     }
 
     func configure(with title: String, isDestructive: Bool = false, isSelected: Bool = false) {

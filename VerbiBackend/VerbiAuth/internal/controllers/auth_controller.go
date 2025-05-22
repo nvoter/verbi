@@ -131,7 +131,7 @@ func (c *AuthController) Login(ctx *gin.Context) {
 // @Failure 400 {object} responses.ErrorResponse
 // @Router /auth/logout [get]
 func (c *AuthController) Logout(ctx *gin.Context) {
-	refreshToken := ctx.GetHeader("refreshToken")
+	refreshToken := ctx.GetHeader("Refresh-token")
 
 	if refreshToken == "" {
 		ctx.JSON(http.StatusBadRequest, gin.H{"error": "Refresh token is empty"})
