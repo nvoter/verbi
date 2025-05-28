@@ -33,7 +33,7 @@ func main() {
 		panic(err)
 	}
 
-	databaseHost := "localhost"
+	databaseHost := "postgres"
 	databasePort := os.Getenv("DB_PORT")
 	databaseName := os.Getenv("DB_NAME")
 	databaseUser := os.Getenv("DB_USER")

@@ -72,7 +72,7 @@ final class AuthPresenter: AuthViewOutput, AuthInteractorOutput {
     }
 
     func didTapResendCode(mode: AuthMode, email: String) {
-        print("Resend code tapped")
+        interactor.resendCode(email: email, mode: mode)
     }
 
     // MARK: - AuthInteractorOutput

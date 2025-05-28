@@ -25,6 +25,7 @@ final class LibraryView: UIViewController {
         static let itemsInRow: CGFloat = 3
         static let numberOfIndents: CGFloat = 2
         static let heightToWidthRatio: CGFloat = 1.5
+        static let fatalErrorMessage: String = "init(coder:) has not been implemented"
     }
 
     // MARK: - UI Elements
@@ -84,6 +85,9 @@ final class LibraryView: UIViewController {
     }()
 
     // MARK: - Properties
+    private let presenter: LibraryViewOutput
+    private var previews: [DocumentPreview] = []
+    var activityIndicator: UIActivityIndicatorView?
     private var isEmpty = true {
         didSet {
             configureView()
@@ -94,6 +98,16 @@ final class LibraryView: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         configureUI()
+        presenter.viewDidLoad()
+    }
+
+    init(presenter: LibraryViewOutput) {
+        self.presenter = presenter
+        super.init(nibName: nil, bundle: nil)
+    }
+
+    required init?(coder: NSCoder) {
+        fatalError(Constants.fatalErrorMessage)
     }
 
     // MARK: - Configuration
@@ -105,6 +119,7 @@ final class LibraryView: UIViewController {
         configureEmptyStateView()
         configureCollectionView()
         configureView()
+        configureActivityIndicator()
     }
 
     private func configureTitleLabel() {
@@ -200,13 +215,26 @@ final class LibraryView: UIViewController {
         collectionView.isHidden = isEmpty
     }
 
+    private func configureActivityIndicator() {
+        activityIndicator = UIActivityIndicatorView(style: .large)
+        guard let activityIndicator else { return }
+        activityIndicator.hidesWhenStopped = true
+        activityIndicator.color = .accent
+        view.addSubview(activityIndicator)
+        activityIndicator.translatesAutoresizingMaskIntoConstraints = false
+        NSLayoutConstraint.activate([
+            activityIndicator.centerXAnchor.constraint(equalTo: view.centerXAnchor),
+            activityIndicator.centerYAnchor.constraint(equalTo: view.centerYAnchor)
+        ])
+    }
+
     // MARK: - Actions
     @objc private func handleUpload() {
-        print("Handle upload")
+        presenter.didTapAddButton()
     }
 
     @objc private func handleProfile() {
-        print("handle open profile")
+        presenter.didTapAccountButton()
     }
 
     private func calculateItemWidth(for screenWidth: CGFloat) -> CGFloat {
@@ -215,12 +243,22 @@ final class LibraryView: UIViewController {
         ) + Constants.spacing * Constants.numberOfIndents
         return floor((screenWidth - totalSpacing) / Constants.itemsInRow)
     }
+
+    func presentDocumentPicker() {
+        let picker = UIDocumentPickerViewController(
+            forOpeningContentTypes: [.pdf, .epub],
+            asCopy: true
+        )
+        picker.delegate = self
+        picker.allowsMultipleSelection = false
+        present(picker, animated: true)
+    }
 }
 
 // MARK: - UICollectionViewDataSource, UICollectionViewDelegate
 extension LibraryView: UICollectionViewDataSource, UICollectionViewDelegate {
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
-        return 10
+        return previews.count
     }
 
     func collectionView(
@@ -233,12 +271,55 @@ extension LibraryView: UICollectionViewDataSource, UICollectionViewDelegate {
         ) as? BookCell else {
             return UICollectionViewCell()
         }
-        let book = "book \(indexPath.row)"
-        cell.configure(with: book, imageName: "book")
+        let book = previews[indexPath.row]
+        cell.configure(with: book)
         return cell
     }
 
     func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
-        print("handle cell with index \(indexPath.row) tapped")
+        presenter.didSelectItem(at: indexPath)
+    }
+}
+
+// MARK: - LibraryViewInput
+extension LibraryView: LibraryViewInput {
+    func reloadData() {
+        collectionView.reloadData()
+    }
+
+    func showError(_ message: String) {
+        let alert = UIAlertController(title: "Error", message: message, preferredStyle: .alert)
+        alert.addAction(.init(title: "OK", style: .default))
+        present(alert, animated: true)
+    }
+
+    func showEmptyState() {
+        isEmpty = true
+    }
+
+    func showDocuments(_ previews: [DocumentPreview]) {
+        self.previews = previews
+        isEmpty = false
+    }
+
+    func showLoading(_ isLoading: Bool) {
+        guard let activityIndicator else { return }
+        if isLoading {
+            isEmpty = false
+            activityIndicator.startAnimating()
+        } else {
+            activityIndicator.stopAnimating()
+        }
+    }
+}
+
+extension LibraryView: UIDocumentPickerDelegate {
+    func documentPicker(_ picker: UIDocumentPickerViewController,
+                        didPickDocumentsAt urls: [URL]) {
+        guard let url = urls.first else { return }
+        presenter.didPickDocument(url: url)
+    }
+    func documentPickerWasCancelled(_ controller: UIDocumentPickerViewController) {
+        return
     }
 }

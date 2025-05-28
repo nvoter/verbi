@@ -12,14 +12,14 @@ final class AuthViewFactory {
     static func build() -> UIViewController {
         let container = Container()
 
-        container.register(ApiWorkerProtocol.self) { _ in
+        container.register(AuthApiWorkerProtocol.self) { _ in
             return ApiWorker()
         }
 
         let router = AuthRouter()
 
         container.register(AuthInteractorInput.self) { resolver in
-            guard let apiWorker = resolver.resolve(ApiWorkerProtocol.self) else {
+            guard let apiWorker = resolver.resolve(AuthApiWorkerProtocol.self) else {
                 fatalError("Could not resolve apiWorker")
             }
             let interactor = AuthInteractor(apiWorker: apiWorker)
@@ -59,3 +59,5 @@ final class AuthViewFactory {
         return viewController
     }
 }
+
+

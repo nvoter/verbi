@@ -256,3 +256,31 @@ func (c *AuthController) ResendCode(ctx *gin.Context) {
 
 	ctx.JSON(http.StatusCreated, gin.H{"message": "Code sent successfully"})
 }
+
+// Validate endpoint to validate access token
+// @Summary Validates an access token
+// @Description Validates an access token and returns userId
+// @Tags Auth
+// @ID validate
+// @Accept json
+// @Produce json
+// @Success 200 {object} responses.ValidateResponse "Successful validation"
+// @Failure 400 {object} responses.ErrorResponse
+// @Router /auth [get]
+func (c *AuthController) Validate(ctx *gin.Context) {
+	userId, exists := ctx.Get("user_id")
+	if !exists {
+		ctx.JSON(http.StatusUnauthorized, gin.H{"error": "User not authenticated"})
+		return
+	}
+
+	userIdFloat, ok := userId.(float64)
+	if !ok {
+		ctx.JSON(http.StatusInternalServerError, gin.H{"error": "Invalid user ID type"})
+		return
+	}
+
+	userIdUint := uint(userIdFloat)
+
+	ctx.JSON(http.StatusOK, gin.H{"userId": userIdUint})
+}

@@ -12,14 +12,14 @@ final class AccountViewFactory {
     static func build() -> UIViewController {
         let container = Container()
 
-        container.register(ApiWorkerProtocol.self) { _ in
+        container.register(AuthApiWorkerProtocol.self) { _ in
             return ApiWorker()
         }
 
         let router = AccountRouter()
 
         container.register(AccountInteractorInput.self) { resolver in
-            guard let apiWorker = resolver.resolve(ApiWorkerProtocol.self) else {
+            guard let apiWorker = resolver.resolve(AuthApiWorkerProtocol.self) else {
                 fatalError("Could not resolve apiWorker")
             }
             let interactor = AccountInteractor(apiWorker: apiWorker)

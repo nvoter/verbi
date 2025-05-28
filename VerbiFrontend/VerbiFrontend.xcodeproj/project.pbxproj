@@ -10,10 +10,27 @@
 		7C2D31CA2DDCBE15004879C3 /* Swinject in Frameworks */ = {isa = PBXBuildFile; productRef = 7C2D31C92DDCBE15004879C3 /* Swinject */; };
 		7C5D09E92DDD13960011D5B8 /* Alamofire in Frameworks */ = {isa = PBXBuildFile; productRef = 7C5D09E82DDD13960011D5B8 /* Alamofire */; };
 		7C5D09FC2DDE25150011D5B8 /* KeychainAccess in Frameworks */ = {isa = PBXBuildFile; productRef = 7C5D09FB2DDE25150011D5B8 /* KeychainAccess */; };
+		7CCD7A002DE4E85500DAA109 /* mft.xcframework in Frameworks */ = {isa = PBXBuildFile; fileRef = 7CCD79FF2DE4E85500DAA109 /* mft.xcframework */; };
+		7CCD7A012DE4E85500DAA109 /* mft.xcframework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 7CCD79FF2DE4E85500DAA109 /* mft.xcframework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 /* End PBXBuildFile section */
+
+/* Begin PBXCopyFilesBuildPhase section */
+		7CCD7A022DE4E85500DAA109 /* Embed Frameworks */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "";
+			dstSubfolderSpec = 10;
+			files = (
+				7CCD7A012DE4E85500DAA109 /* mft.xcframework in Embed Frameworks */,
+			);
+			name = "Embed Frameworks";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
 		7C627C132D3501C30052C895 /* VerbiFrontend.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = VerbiFrontend.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		7CCD79FF2DE4E85500DAA109 /* mft.xcframework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcframework; name = mft.xcframework; path = "../../../mft 2025-05-26 21-18-33/mft.xcframework"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
@@ -43,6 +60,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				7C2D31CA2DDCBE15004879C3 /* Swinject in Frameworks */,
+				7CCD7A002DE4E85500DAA109 /* mft.xcframework in Frameworks */,
 				7C5D09E92DDD13960011D5B8 /* Alamofire in Frameworks */,
 				7C5D09FC2DDE25150011D5B8 /* KeychainAccess in Frameworks */,
 			);
@@ -55,6 +73,7 @@
 			isa = PBXGroup;
 			children = (
 				7C627C152D3501C30052C895 /* VerbiFrontend */,
+				7CCD79FE2DE4E85400DAA109 /* Frameworks */,
 				7C627C142D3501C30052C895 /* Products */,
 			);
 			sourceTree = "<group>";
@@ -65,6 +84,14 @@
 				7C627C132D3501C30052C895 /* VerbiFrontend.app */,
 			);
 			name = Products;
+			sourceTree = "<group>";
+		};
+		7CCD79FE2DE4E85400DAA109 /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+				7CCD79FF2DE4E85500DAA109 /* mft.xcframework */,
+			);
+			name = Frameworks;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -78,6 +105,7 @@
 				7C627C102D3501C30052C895 /* Frameworks */,
 				7C627C112D3501C30052C895 /* Resources */,
 				7CA346CE2D3E914A000C2525 /* ShellScript */,
+				7CCD7A022DE4E85500DAA109 /* Embed Frameworks */,
 			);
 			buildRules = (
 			);

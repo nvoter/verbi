@@ -22,9 +22,7 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
         applyTheme()
 
         if UserDefaultsService.shared.isAuthorized() {
-            let libraryView = LibraryView()
-            let navController = UINavigationController(rootViewController: libraryView)
-            window?.rootViewController = navController
+            window?.rootViewController = LibraryViewFactory.build()
         } else {
             window?.rootViewController = AuthViewFactory.build()
         }

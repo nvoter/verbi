@@ -31,6 +31,7 @@ func SetupRoutes(r *gin.Engine, authController *controllers.AuthController, prof
 		authGroup.PUT("/password", authController.ConfirmResetPassword)
 		authGroup.GET("/code", authController.ResendCode)
 		authGroup.GET("/refresh", authController.Refresh)
+		authGroup.GET("/", middleware.AuthMiddleware(), authController.Validate)
 	}
 
 	profileGroup := api.Group("/profile")

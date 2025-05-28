@@ -1,0 +1,12 @@
+services:
+  app:
+    env_file:
+      - .env
+    build:
+      context: .
+    ports:
+      - "${SERVER_PORT}:${SERVER_PORT}"
+    environment:
+      SERVER_PORT: ${SERVER_PORT}
+      API_KEY: ${API_KEY}
+      MODEL_NAME: ${MODEL_NAME}

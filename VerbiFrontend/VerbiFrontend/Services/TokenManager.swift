@@ -8,7 +8,7 @@
 import Foundation
 import KeychainAccess
 
-final class KeychainManager {
+final class TokenManager {
     // MARK: - Constants
     private enum Constants {
         static let service: String = "Verbi"
@@ -20,7 +20,7 @@ final class KeychainManager {
     private let keychain: Keychain = Keychain(service: Constants.service)
 
     // MARK: - Singleton
-    static let shared = KeychainManager()
+    static let shared = TokenManager()
 
     private init() {}
 

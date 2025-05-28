@@ -91,3 +91,5 @@ fastlane/test_output
 # IDEA
 **/.idea
 **/.DS_Store
+
+host_rsa_key*

@@ -236,6 +236,26 @@
         }
       }
     },
+    "Question" : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Вопрос"
+          }
+        }
+      }
+    },
+    "Rephrase" : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Перефразировать"
+          }
+        }
+      }
+    },
     "Resend code" : {
       "localizations" : {
         "ru" : {
@@ -307,6 +327,16 @@
         }
       }
     },
+    "Summarize" : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Суммаризировать"
+          }
+        }
+      }
+    },
     "System" : {
       "localizations" : {
         "ru" : {
@@ -323,6 +353,16 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Тема"
+          }
+        }
+      }
+    },
+    "This field cannot be empty if you want to ask a question about the fragment" : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Поле не может быть пустым при выборе типа «Вопрос»"
           }
         }
       }

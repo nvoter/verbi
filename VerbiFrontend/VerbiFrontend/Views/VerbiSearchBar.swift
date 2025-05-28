@@ -25,13 +25,18 @@ final class VerbiSearchBar: UISearchBar {
         configure()
     }
 
+    init(placeholder: String) {
+        super.init(frame: .zero)
+        configure(placeholder: placeholder)
+    }
+
     required init?(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
     }
 
     // MARK: - Configuration
-    private func configure() {
-        self.placeholder = Constants.placeholder
+    private func configure(placeholder: String? = Constants.placeholder) {
+        self.placeholder = placeholder
         self.tintColor = .accent
         self.searchBarStyle = .minimal
 
@@ -42,7 +47,7 @@ final class VerbiSearchBar: UISearchBar {
         textField.font = UIFont(name: Constants.fontName, size: Constants.fontSize)
         textField.textColor = .accent
         textField.attributedPlaceholder = NSAttributedString(
-            string: Constants.placeholder,
+            string: self.placeholder ?? Constants.placeholder,
             attributes: [
                 .foregroundColor: UIColor.accent.withAlphaComponent(Constants.alpha)
             ]

@@ -10,12 +10,12 @@ import Foundation
 final class AccountInteractor: AccountInteractorInput {
     // MARK: - Properties
     weak var output: AccountInteractorOutput?
-    private let apiWorker: ApiWorkerProtocol
+    private let apiWorker: AuthApiWorkerProtocol
     private var isRefreshing = false
     private var pendingRequests: [(() -> Void)] = []
 
     // MARK: - LifeCycle
-    init(apiWorker: ApiWorkerProtocol) {
+    init(apiWorker: AuthApiWorkerProtocol) {
         self.apiWorker = apiWorker
     }
 
@@ -57,7 +57,7 @@ final class AccountInteractor: AccountInteractorInput {
     }
 
     func logout() {
-        guard let refreshToken = KeychainManager.shared.getRefreshToken() else {
+        guard let refreshToken = TokenManager.shared.getRefreshToken() else {
             output?.didFailWithError(NSError(domain: "Auth", code: 401, userInfo: nil))
             return
         }
@@ -65,7 +65,7 @@ final class AccountInteractor: AccountInteractorInput {
         apiWorker.logout(refreshToken: refreshToken) { [weak self] result in
             switch result {
             case .success:
-                KeychainManager.shared.clear()
+                TokenManager.shared.clear()
                 UserDefaultsService.shared.setAuthorized(false)
                 self?.output?.didLogoutSuccessfully()
             case .failure(let error):
@@ -80,7 +80,7 @@ final class AccountInteractor: AccountInteractorInput {
         apiWorker.deleteAccount { [weak self] result in
             switch result {
             case .success:
-                KeychainManager.shared.clear()
+                TokenManager.shared.clear()
                 UserDefaultsService.shared.setAuthorized(false)
                 self?.output?.didDeleteAccountSuccessfully()
             case .failure(let error):
@@ -112,7 +112,7 @@ final class AccountInteractor: AccountInteractorInput {
                     self.pendingRequests.removeAll()
                 } else {
                     UserDefaultsService.shared.setAuthorized(false)
-                    KeychainManager.shared.clear()
+                    TokenManager.shared.clear()
                     self.output?.didLogoutSuccessfully()
                 }
             }
@@ -122,7 +122,7 @@ final class AccountInteractor: AccountInteractorInput {
     }
 
     private func refresh(completion: @escaping (Bool) -> Void) {
-        guard let refreshToken = KeychainManager.shared.getRefreshToken() else {
+        guard let refreshToken = TokenManager.shared.getRefreshToken() else {
             completion(false)
             return
         }
@@ -131,7 +131,7 @@ final class AccountInteractor: AccountInteractorInput {
             switch result {
             case .success(let response):
                 UserDefaultsService.shared.setAuthorized(true)
-                KeychainManager.shared.save(
+                TokenManager.shared.save(
                     accessToken: response
                 )
                 completion(true)

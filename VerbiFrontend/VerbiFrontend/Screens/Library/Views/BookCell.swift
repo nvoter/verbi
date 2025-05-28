@@ -78,9 +78,15 @@ class BookCell: UICollectionViewCell {
         fatalError(Constants.fatalErrorMessage)
     }
 
+    override func prepareForReuse() {
+        super.prepareForReuse()
+        imageView.image = nil
+        titleLabel.text = nil
+    }
+
     // MARK: - Configuration
-    func configure(with title: String, imageName: String) {
-        imageView.image = UIImage(named: imageName)
-        titleLabel.text = title
+    func configure(with preview: DocumentPreview) {
+        imageView.image = preview.image
+        titleLabel.text = preview.title
     }
 }

@@ -29,7 +29,7 @@ final class AccountRouter: AccountRouterInput {
 
     func navigateToMainScreen() {
         UIView.animate(withDuration: 0.3) {
-            let mainViewController = LibraryView()
+            let mainViewController = LibraryViewFactory.build()
 
             guard let windowScene = UIApplication.shared.connectedScenes.first as? UIWindowScene,
                   let window = windowScene.windows.first else {

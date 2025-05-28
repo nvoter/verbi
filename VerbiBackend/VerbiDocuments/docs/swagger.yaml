@@ -1,0 +1,206 @@
+basePath: /api/v1
+definitions:
+  models.Document:
+    properties:
+      id:
+        type: integer
+      path:
+        type: string
+      title:
+        type: string
+      user_id:
+        type: integer
+    type: object
+  requests.CreateDocumentRequest:
+    properties:
+      title:
+        type: string
+      user_id:
+        type: integer
+    type: object
+  responses.CredentialsResponse:
+    properties:
+      document_id:
+        type: integer
+      path:
+        type: string
+      sftp:
+        properties:
+          host:
+            type: string
+          password:
+            type: string
+          port:
+            type: string
+          username:
+            type: string
+        type: object
+      title:
+        type: string
+    type: object
+  responses.ErrorResponse:
+    properties:
+      error:
+        type: string
+    type: object
+  responses.GetCredentialsResponse:
+    properties:
+      host:
+        type: string
+      password:
+        type: string
+      port:
+        type: string
+      username:
+        type: string
+    type: object
+  responses.GetDocumentsResponse:
+    properties:
+      documents:
+        items:
+          $ref: '#/definitions/models.Document'
+        type: array
+    type: object
+host: localhost:8081
+info:
+  contact: {}
+  description: Documents management actions
+  title: VerbiDocuments API
+  version: "1.0"
+paths:
+  /documents:
+    delete:
+      consumes:
+      - application/json
+      description: Deletes all user's documents from the database and the sftp server
+      operationId: eraseLinkedByUserId
+      parameters:
+      - description: User id
+        in: query
+        name: userId
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/responses.CredentialsResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/responses.ErrorResponse'
+      summary: Deletes all stored user info
+      tags:
+      - Documents
+    post:
+      consumes:
+      - application/json
+      description: Saves document metadata and returns authorization credentials for
+        sftp server
+      operationId: createDocument
+      parameters:
+      - description: Request body
+        in: body
+        name: metadata
+        required: true
+        schema:
+          $ref: '#/definitions/requests.CreateDocumentRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/responses.CredentialsResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/responses.ErrorResponse'
+      summary: Create a new document in library
+      tags:
+      - Documents
+  /documents/{userId}:
+    delete:
+      consumes:
+      - application/json
+      description: Deletes the document from the database and the sftp server
+      operationId: deleteDocument
+      parameters:
+      - description: User id
+        in: path
+        name: userId
+        required: true
+        type: integer
+      - description: Document id
+        in: query
+        name: documentId
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Document deleted successfully
+          schema:
+            type: string
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/responses.ErrorResponse'
+      summary: Delete the document from the user's library
+      tags:
+      - Documents
+    get:
+      consumes:
+      - application/json
+      description: Returns metadata of all documents in the user's library
+      operationId: getDocuments
+      parameters:
+      - description: User id
+        in: path
+        name: userId
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: List of user's documents
+          schema:
+            $ref: '#/definitions/responses.GetDocumentsResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/responses.ErrorResponse'
+      summary: Gives all user's documents' metadata
+      tags:
+      - Documents
+  /documents/credentials:
+    get:
+      consumes:
+      - application/json
+      description: Returns login and password for sftp server
+      operationId: getCredentials
+      parameters:
+      - description: User id
+        in: query
+        name: userId
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/responses.GetCredentialsResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/responses.ErrorResponse'
+      summary: Gives credentials for authentication at sftp server
+      tags:
+      - Documents
+swagger: "2.0"

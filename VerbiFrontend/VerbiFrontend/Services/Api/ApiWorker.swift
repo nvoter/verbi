@@ -8,11 +8,24 @@
 import Alamofire
 import Foundation
 
-final class ApiWorker: ApiWorkerProtocol {
+final class ApiWorker {
     // MARK: - Properties
-    private let baseURL = "http://192.168.0.32:8080/api/v1"
+    private let baseURL = "http://192.168.0.32:8083/api/v1"
 
-    // MARK: - Register
+    // MARK: - Methods
+    private func getAuthHeaders() -> HTTPHeaders {
+        guard let accessToken = TokenManager.shared.getAccessToken() else {
+            fatalError("Could not get access token")
+        }
+
+        let headers: HTTPHeaders = [.authorization(bearerToken: accessToken)]
+        return headers
+    }
+}
+
+// MARK: - AuthApiWorkerProtocol
+extension ApiWorker: AuthApiWorkerProtocol {
+    // MARK: Register
     func register(
         email: String,
         username: String,
@@ -41,7 +54,7 @@ final class ApiWorker: ApiWorkerProtocol {
             }
     }
 
-    // MARK: - Confirm Email
+    // MARK: Confirm Email
     func confirmEmail(email: String, code: String, completion: @escaping (Result<String, Error>) -> Void) {
         let url = "\(baseURL)/auth/email"
         let parameters: [String: String] = [
@@ -72,7 +85,7 @@ final class ApiWorker: ApiWorkerProtocol {
             }
     }
 
-    // MARK: - Login
+    // MARK: Login
     func login(
         emailOrUsername: String,
         password: String,
@@ -98,7 +111,7 @@ final class ApiWorker: ApiWorkerProtocol {
             }
     }
 
-    // MARK: - Reset Password
+    // MARK: Reset Password
     func resetPassword(email: String, completion: @escaping (Result<String, Error>) -> Void) {
         let url = "\(baseURL)/auth/password"
         let parameters: [String: String] = [
@@ -128,7 +141,7 @@ final class ApiWorker: ApiWorkerProtocol {
             }
     }
 
-    // MARK: - Confirm Reset Password
+    // MARK: Confirm Reset Password
     func confirmResetPassword(
         email: String,
         newPassword: String,
@@ -157,7 +170,7 @@ final class ApiWorker: ApiWorkerProtocol {
             }
     }
 
-    // MARK: - Resend Code
+    // MARK: Resend Code
     func resendCode(email: String, codeType: String, completion: @escaping (Result<String, Error>) -> Void) {
         let url = "\(baseURL)/auth/code"
         let parameters: [String: String] = [
@@ -188,7 +201,7 @@ final class ApiWorker: ApiWorkerProtocol {
             }
     }
 
-    // MARK: - Refresh
+    // MARK: Refresh
     func refresh(refreshToken: String, completion: @escaping (Result<String, Error>) -> Void) {
         let url = "\(baseURL)/auth/refresh"
         let headers: HTTPHeaders = [
@@ -206,7 +219,7 @@ final class ApiWorker: ApiWorkerProtocol {
             }
     }
 
-    // MARK: - Get User Info
+    // MARK: Get User Info
     func getUserInfo(completion: @escaping (Result<UserInfoResponse, Error>) -> Void) {
         let url = "\(baseURL)/profile/"
         let headers = getAuthHeaders()
@@ -223,7 +236,7 @@ final class ApiWorker: ApiWorkerProtocol {
             }
     }
 
-    // MARK: - Update User Info
+    // MARK: Update User Info
     func updateUserInfo(username: String, completion: @escaping (Result<String, Error>) -> Void) {
         let url = "\(baseURL)/profile/"
         let parameters: [String: Any] = [
@@ -246,7 +259,7 @@ final class ApiWorker: ApiWorkerProtocol {
             }
     }
 
-    // MARK: - Delete Account
+    // MARK: Delete Account
     func deleteAccount(completion: @escaping (Result<String, Error>) -> Void) {
         let url = "\(baseURL)/profile/"
 
@@ -266,7 +279,7 @@ final class ApiWorker: ApiWorkerProtocol {
             }
     }
 
-    // MARK: - Logout
+    // MARK: Logout
     func logout(refreshToken: String, completion: @escaping (Result<String, Error>) -> Void) {
         let url = "\(baseURL)/auth/logout/"
         let headers: HTTPHeaders = [
@@ -287,14 +300,88 @@ final class ApiWorker: ApiWorkerProtocol {
                 }
             }
     }
+}
 
-    // MARK: - Methods
-    private func getAuthHeaders() -> HTTPHeaders {
-        guard let accessToken = KeychainManager.shared.getAccessToken() else {
-            fatalError("Could not get access token")
+// MARK: - LibraryApiWorkerProtocol
+extension ApiWorker: LibraryApiWorkerProtocol {
+    // MARK: FetchDocuments
+    func fetchDocuments(userId: UInt, completion: @escaping (Result<[Document], Error>) -> Void) {
+        let url = "\(baseURL)/documents/\(userId)"
+        AF.request(url, method: .get, headers: getAuthHeaders())
+            .validate()
+            .responseDecodable(of: GetDocumentsResponse.self) { resp in
+                debugPrint(resp)
+                switch resp.result {
+                case .success(let data):
+                    guard !data.documents.isEmpty else {
+                        completion(.success([]))
+                        return
+                    }
+
+                    completion(.success(data.documents))
+                case .failure(let err):
+                    completion(.failure(err))
+                }
+            }
+    }
+
+    // MARK: FetchCredentials
+    func fetchCredentials(userId: UInt, completion: @escaping (Result<GetCredentialsResponse, Error>) -> Void) {
+        let url = "\(baseURL)/documents/credentials"
+        let params: Parameters = ["userId": userId]
+        AF.request(url, method: .get, parameters: params, headers: getAuthHeaders())
+            .validate()
+            .responseDecodable(of: GetCredentialsResponse.self) { resp in
+                switch resp.result {
+                case .success(let creds): completion(.success(creds))
+                case .failure(let err):   completion(.failure(err))
+                }
+            }
+    }
+
+    // MARK: CreateDocument
+    func createDocument(
+        userId: UInt,
+        title: String,
+        completion: @escaping (Result<CreateDocumentResponse, Error>) -> Void
+    ) {
+        let url = "\(baseURL)/documents"
+        let params: Parameters = [
+            "user_id": userId,
+            "title": title
+        ]
+        AF.request(url, method: .post, parameters: params, encoding: JSONEncoding.default, headers: getAuthHeaders())
+            .validate(statusCode: 200..<300)
+            .responseDecodable(of: CreateDocumentResponse.self) { resp in
+                debugPrint(resp)
+                switch resp.result {
+                case .success(let data):
+                    completion(.success(data))
+                case .failure(let err):
+                    completion(.failure(err))
+                }
+            }
+    }
+}
+
+// MARK: - LlmApiWorkerProtocol
+extension ApiWorker: LlmApiWorkerProtocol {
+    func send(request: LlmRequest, completion: @escaping (Result<LlmResponse, Error>) -> Void) {
+        let url = "http://192.168.0.32:8082/api/v1/llm/response"
+        AF.request(
+            url,
+            method: .post,
+            parameters: request,
+            encoder: JSONParameterEncoder.default
+        )
+        .validate()
+        .responseDecodable(of: LlmResponse.self) { response in
+            switch response.result {
+            case .success(let resp):
+                completion(.success(resp))
+            case .failure(let error):
+                completion(.failure(error))
+            }
         }
-
-        let headers: HTTPHeaders = [.authorization(bearerToken: accessToken)]
-        return headers
     }
 }

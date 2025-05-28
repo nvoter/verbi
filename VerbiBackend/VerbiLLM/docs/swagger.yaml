@@ -1,0 +1,58 @@
+basePath: /api/v1
+definitions:
+  requests.LlmRequest:
+    properties:
+      book:
+        type: string
+      prompt:
+        type: string
+      query:
+        type: string
+      query_type:
+        type: string
+    type: object
+  responses.ErrorResponse:
+    properties:
+      error:
+        type: string
+    type: object
+  responses.LlmResponse:
+    properties:
+      response:
+        type: string
+    type: object
+host: localhost:8082
+info:
+  contact: {}
+  description: LLM actions
+  title: VerbiLLM API
+  version: "1.0"
+paths:
+  /llm/response:
+    post:
+      consumes:
+      - application/json
+      description: Sends a request to LLM and returns its response
+      operationId: getResponse
+      parameters:
+      - description: Request
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/requests.LlmRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: LLM response
+          schema:
+            $ref: '#/definitions/responses.LlmResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/responses.ErrorResponse'
+      summary: Handles a request to LLM
+      tags:
+      - LLM
+swagger: "2.0"

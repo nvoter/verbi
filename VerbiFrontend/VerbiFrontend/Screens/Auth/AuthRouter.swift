@@ -13,16 +13,15 @@ final class AuthRouter: AuthRouterInput {
 
     // MARK: - AuthRouterInput
     func navigateToMainScreen() {
-        let mainViewController = LibraryView()
-        let navController = UINavigationController(rootViewController: mainViewController)
+        let mainViewController = LibraryViewFactory.build()
 
         guard let windowScene = UIApplication.shared.connectedScenes.first as? UIWindowScene,
               let window = windowScene.windows.first else {
-            print("Failed to get windowscene")
+            print("Failed to get window")
             return
         }
 
-        window.rootViewController = navController
+        window.rootViewController = mainViewController
         window.makeKeyAndVisible()
     }
 }

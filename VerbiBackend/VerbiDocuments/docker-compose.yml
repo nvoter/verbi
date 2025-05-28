@@ -1,0 +1,60 @@
+services:
+  app:
+    env_file:
+      - .env
+    build: .
+    ports:
+      - "${SERVER_PORT}:${SERVER_PORT}"
+    environment:
+      DB_HOST: postgres
+      DB_PORT: ${DB_PORT}
+      DB_USER: ${DB_USER}
+      DB_PASSWORD: ${DB_PASSWORD}
+      DB_NAME: ${DB_NAME}
+      SFTP_PORT: ${SFTP_PORT}
+      SFTP_USER: ${SFTP_USER}
+      SFTP_PASSWORD: ${SFTP_PASSWORD}
+      SFTP_HOST: ${SFTP_HOST}
+    depends_on:
+      postgres:
+        condition: service_healthy
+      sftp:
+        condition: service_started
+
+  postgres:
+    image: postgres:16-alpine
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+    environment:
+      PGPORT: ${DB_PORT}
+      POSTGRES_USER: ${DB_USER}
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+      POSTGRES_DB: ${DB_NAME}
+    expose:
+      - "${DB_PORT}"
+    ports:
+      - "${DB_PORT}:${DB_PORT}"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  sftp:
+    build:
+      context: .
+    depends_on:
+      postgres:
+        condition: service_healthy
+    volumes:
+      - ./sftp_data:/home/verbi/uploads
+      - ./host_rsa_key:/app/host_rsa_key:ro
+    environment:
+      - SFTP_PORT=${SFTP_PORT}
+      - SFTP_HOST_KEY=/app/host_rsa_key
+    ports:
+      - "${SFTP_PORT}:22"
+
+volumes:
+  postgres-data:
+  sftp_data:

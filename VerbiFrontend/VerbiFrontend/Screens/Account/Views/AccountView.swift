@@ -309,7 +309,6 @@ extension AccountView: AccountViewInput {
 
         UIView.animate(withDuration: Constants.animationDuration) {
             self.usernameTextField.changeBorderStyle(self.isEditingMode)
-            self.emailTextField.changeBorderStyle(self.isEditingMode)
         }
     }
 }

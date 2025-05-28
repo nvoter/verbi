@@ -10,10 +10,10 @@ import Foundation
 final class AuthInteractor: AuthInteractorInput {
     // MARK: - Properties
     weak var output: AuthInteractorOutput?
-    private let apiWorker: ApiWorkerProtocol
+    private let apiWorker: AuthApiWorkerProtocol
 
     // MARK: - LifeCycle
-    init(apiWorker: ApiWorkerProtocol) {
+    init(apiWorker: AuthApiWorkerProtocol) {
         self.apiWorker = apiWorker
     }
 
@@ -29,10 +29,10 @@ final class AuthInteractor: AuthInteractorInput {
             emailOrUsername: emailOrUsername,
             password: password
         ) { [weak self] result in
-            KeychainManager.shared.clear()
+            TokenManager.shared.clear()
             switch result {
             case .success(let loginResponse):
-                KeychainManager.shared
+                TokenManager.shared
                     .save(
                         accessToken: loginResponse.accessToken,
                         refreshToken: loginResponse.refreshToken
